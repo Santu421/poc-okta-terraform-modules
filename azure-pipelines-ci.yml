@@ -1,0 +1,120 @@
+trigger:
+  branches:
+    include:
+    - main
+    - develop
+
+pr:
+  branches:
+    include:
+    - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  TF_VERSION: '1.5.0'
+
+stages:
+- stage: Validate
+  displayName: 'Validate Terraform'
+  jobs:
+  - job: Validate
+    displayName: 'Validate Terraform Modules'
+    steps:
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: $(TF_VERSION)
+
+    - task: TerraformTaskV4@4
+      displayName: 'Terraform Format Check'
+      inputs:
+        provider: 'azurerm'
+        command: 'custom'
+        customCommand: 'fmt -check -recursive'
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+    - task: TerraformTaskV4@4
+      displayName: 'Terraform Init'
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/examples'
+
+    - task: TerraformTaskV4@4
+      displayName: 'Terraform Validate'
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/examples'
+
+    - task: TerraformTaskV4@4
+      displayName: 'Terraform Plan'
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/examples'
+        environmentServiceNameAzureRM: 'Azure-Service-Connection'
+      env:
+        TF_VAR_okta_org_url: $(OKTA_ORG_URL)
+        TF_VAR_okta_api_token: $(OKTA_API_TOKEN)
+
+- stage: Test
+  displayName: 'Test Modules'
+  jobs:
+  - job: TestModules
+    displayName: 'Test Individual Modules'
+    strategy:
+      matrix:
+        oauth:
+          module: 'okta_app_oauth'
+        bookmark:
+          module: 'okta_app_bookmark'
+        group:
+          module: 'okta_group'
+        trusted_origin:
+          module: 'okta_trusted_origin'
+    
+    steps:
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: $(TF_VERSION)
+
+    - task: TerraformTaskV4@4
+      displayName: 'Test $(module) Module'
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/modules/$(module)'
+
+    - task: TerraformTaskV4@4
+      displayName: 'Validate $(module) Module'
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/modules/$(module)'
+      env:
+        TF_VAR_okta_org_url: $(OKTA_ORG_URL)
+        TF_VAR_okta_api_token: $(OKTA_API_TOKEN)
+
+- stage: Security
+  displayName: 'Security Scan'
+  jobs:
+  - job: SecurityScan
+    displayName: 'Security Vulnerability Scan'
+    steps:
+    - task: Trivy@0
+      displayName: 'Run Trivy Security Scan'
+      inputs:
+        scanType: 'fs'
+        scanRef: '$(System.DefaultWorkingDirectory)'
+        format: 'sarif'
+        outputFile: 'trivy-results.sarif'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Security Results'
+      inputs:
+        pathToPublish: 'trivy-results.sarif'
+        artifactName: 'security-scan-results' 
