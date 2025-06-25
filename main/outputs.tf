@@ -122,7 +122,7 @@ output "app_metadata" {
   description = "Application metadata from YAML"
   value = {
     parent_cmdb_name    = local.parent_cmdb_name
-    division_name       = local.division_name
+    division            = local.division
     cmdb_app_short_name = local.cmdb_app_short_name
     team_dl             = local.team_dl
     requested_by        = local.requested_by

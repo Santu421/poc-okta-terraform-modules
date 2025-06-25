@@ -8,7 +8,7 @@ locals {
   
   # Extract metadata values
   parent_cmdb_name    = local.metadata.parent_cmdb_name
-  division_name       = local.metadata.division_name
+  division            = local.metadata.division
   cmdb_app_short_name = local.metadata.cmdb_app_short_name
   team_dl             = local.metadata.team_dl
   requested_by        = local.metadata.requested_by
@@ -34,8 +34,17 @@ module "oauth_2leg" {
   count  = local.app_config.create_2leg ? 1 : 0
   source = "../modules/oauth_2leg"
   
-  app_label = "${local.division_name}_${local.cmdb_app_short_name}_API_SVCS"
-  client_id = "${local.division_name}_${local.cmdb_app_short_name}_API_SVCS"
+  app_label = "${local.division}_${local.cmdb_app_short_name}_API_SVCS"
+  client_id = "${local.division}_${local.cmdb_app_short_name}_API_SVCS"
+  
+  # Set profile with all metadata fields
+  profile = jsonencode({
+    parent_cmdb_name    = local.parent_cmdb_name
+    division            = local.division
+    cmdb_app_short_name = local.cmdb_app_short_name
+    team_dl             = local.team_dl
+    requested_by        = local.requested_by
+  })
   
   # All optional OAuth app parameters - use try() to handle missing fields
   accessibility_error_redirect_url     = try(local.oauth_config.accessibility_error_redirect_url, null)
@@ -65,7 +74,6 @@ module "oauth_2leg" {
   pkce_required                        = try(local.oauth_config.pkce_required, null)
   policy_uri                           = try(local.oauth_config.policy_uri, null)
   post_logout_redirect_uris           = try(local.oauth_config.post_logout_redirect_uris, null)
-  profile                              = try(local.oauth_config.profile, null)
   redirect_uris                        = try(local.oauth_config.redirect_uris, null)
   refresh_token_leeway                = try(local.oauth_config.refresh_token_leeway, null)
   refresh_token_rotation              = try(local.oauth_config.refresh_token_rotation, null)
@@ -83,19 +91,19 @@ module "oauth_3leg_frontend" {
   count  = local.app_config.create_3leg_frontend ? 1 : 0
   source = "../modules/spa_oidc"
   
-  app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_SPA"
-  client_id = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_SPA"
+  app_label = "${local.division}_${local.cmdb_app_short_name}_OIDC_SPA"
+  client_id = "${local.division}_${local.cmdb_app_short_name}_OIDC_SPA"
   
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
   
   # Group configuration
-  group_name = "${local.division_name}_${local.cmdb_app_short_name}_SPA_ACCESS_${upper(local.environment)}"
+  group_name = "${local.division}_${local.cmdb_app_short_name}_SPA_ACCESS_${upper(local.environment)}"
   group_description = "Access group for ${local.parent_cmdb_name} Frontend (${local.environment})"
   
   # Trusted origin
-  trusted_origin_name = "${local.division_name}_${local.cmdb_app_short_name}_SPA_ORIGIN_${upper(local.environment)}"
+  trusted_origin_name = "${local.division}_${local.cmdb_app_short_name}_SPA_ORIGIN_${upper(local.environment)}"
   trusted_origin_url = try(local.trusted_origins[0].url, "https://${lower(local.cmdb_app_short_name)}-${local.environment}.example.com")
   trusted_origin_scopes = ["CORS", "REDIRECT"]
   
@@ -109,19 +117,19 @@ module "oauth_3leg_backend" {
   count  = local.app_config.create_3leg_backend ? 1 : 0
   source = "../modules/web_oidc"
   
-  app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_WA"
-  client_id = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_WA"
+  app_label = "${local.division}_${local.cmdb_app_short_name}_OIDC_WA"
+  client_id = "${local.division}_${local.cmdb_app_short_name}_OIDC_WA"
   
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
   
   # Group configuration
-  group_name = "${local.division_name}_${local.cmdb_app_short_name}_WA_ACCESS_${upper(local.environment)}"
+  group_name = "${local.division}_${local.cmdb_app_short_name}_WA_ACCESS_${upper(local.environment)}"
   group_description = "Access group for ${local.parent_cmdb_name} Backend (${local.environment})"
   
   # Trusted origin
-  trusted_origin_name = "${local.division_name}_${local.cmdb_app_short_name}_WA_ORIGIN_${upper(local.environment)}"
+  trusted_origin_name = "${local.division}_${local.cmdb_app_short_name}_WA_ORIGIN_${upper(local.environment)}"
   trusted_origin_url = try(local.trusted_origins[0].url, "https://${lower(local.cmdb_app_short_name)}-${local.environment}.example.com")
   trusted_origin_scopes = ["CORS", "REDIRECT"]
   
@@ -135,19 +143,19 @@ module "oauth_3leg_native" {
   count  = local.app_config.create_3leg_native ? 1 : 0
   source = "../modules/na_oidc"
   
-  app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_NA"
-  client_id = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_NA"
+  app_label = "${local.division}_${local.cmdb_app_short_name}_OIDC_NA"
+  client_id = "${local.division}_${local.cmdb_app_short_name}_OIDC_NA"
   
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
   
   # Group configuration
-  group_name = "${local.division_name}_${local.cmdb_app_short_name}_NA_ACCESS_${upper(local.environment)}"
+  group_name = "${local.division}_${local.cmdb_app_short_name}_NA_ACCESS_${upper(local.environment)}"
   group_description = "Access group for ${local.parent_cmdb_name} Native (${local.environment})"
   
   # Trusted origin
-  trusted_origin_name = "${local.division_name}_${local.cmdb_app_short_name}_NA_ORIGIN_${upper(local.environment)}"
+  trusted_origin_name = "${local.division}_${local.cmdb_app_short_name}_NA_ORIGIN_${upper(local.environment)}"
   trusted_origin_url = try(local.trusted_origins[0].url, "https://${lower(local.cmdb_app_short_name)}-${local.environment}.example.com")
   trusted_origin_scopes = ["CORS", "REDIRECT"]
   
