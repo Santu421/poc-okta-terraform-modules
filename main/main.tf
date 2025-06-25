@@ -34,19 +34,41 @@ module "oauth_2leg" {
   
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_API_SVCS_${upper(local.environment)}"
   
-  # Pass through any optional parameters from YAML if they exist
-  auto_submit_toolbar = try(local.env_config.auto_submit_toolbar, null)
-  hide_ios            = try(local.env_config.hide_ios, null)
-  hide_web            = try(local.env_config.hide_web, null)
-  issuer_mode         = try(local.env_config.issuer_mode, null)
-  notes               = try(local.env_config.notes, null)
-  status              = try(local.env_config.status, null)
+  # Group configuration
+  group_name = "${local.division_name}_${local.cmdb_app_short_name}_API_ACCESS_${upper(local.environment)}"
+  group_description = "Access group for ${local.parent_cmdb_name} API Services (${local.environment})"
+  
+  # Valid OAuth app attributes from Okta provider documentation
+  auto_submit_toolbar        = try(local.env_config.auto_submit_toolbar, null)
+  hide_ios                   = try(local.env_config.hide_ios, null)
+  hide_web                   = try(local.env_config.hide_web, null)
+  issuer_mode                = try(local.env_config.issuer_mode, null)
+  pkce_required              = try(local.env_config.pkce_required, null)
+  consent_method            = try(local.env_config.consent_method, null)
+  custom_client_id          = try(local.env_config.custom_client_id, null)
+  client_uri                = try(local.env_config.client_uri, null)
+  logo_uri                  = try(local.env_config.logo_uri, null)
+  policy_uri                = try(local.env_config.policy_uri, null)
+  tos_uri                   = try(local.env_config.tos_uri, null)
+  profile                   = try(local.env_config.profile, null)
+  jwks_uri                  = try(local.env_config.jwks_uri, null)
+  client_basic_secret       = try(local.env_config.client_basic_secret, null)
+  token_endpoint_auth_signature = try(local.env_config.token_endpoint_auth_signature, null)
+  trust_groups              = try(local.env_config.trust_groups, null)
+  trust_zones               = try(local.env_config.trust_zones, null)
+  custom_setup_property     = try(local.env_config.custom_setup_property, null)
+  external_id               = try(local.env_config.external_id, null)
+  features                  = try(local.env_config.features, null)
+  inline_hook_id            = try(local.env_config.inline_hook_id, null)
+  notes                     = try(local.env_config.notes, null)
+  sign_on_mode              = try(local.env_config.sign_on_mode, null)
+  status                    = try(local.env_config.status, null)
+  timeouts                  = try(local.env_config.timeouts, null)
   
   # Trusted origin (if specified in YAML)
   trusted_origin_name = try(local.trusted_origins[0].name, null)
   trusted_origin_url  = try(local.trusted_origins[0].url, null)
   trusted_origin_scopes = try(local.trusted_origins[0].scopes, ["CORS"])
-  trusted_origin_status = try(local.trusted_origins[0].status, "ACTIVE")
   
   # Bookmark (if specified in YAML)
   bookmark_label = try(local.bookmarks[0].name, null)
@@ -65,11 +87,8 @@ module "oauth_3leg_frontend" {
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_SPA_${upper(local.environment)}"
   
   # OAuth configuration
-  grant_types = ["authorization_code", "refresh_token"]
   redirect_uris = local.oauth_config.redirect_uris
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
-  response_types = ["code"]
-  token_endpoint_auth_method = "none"
   
   # Group configuration
   group_name = "${local.division_name}_${local.cmdb_app_short_name}_SPA_ACCESS_${upper(local.environment)}"
@@ -81,7 +100,6 @@ module "oauth_3leg_frontend" {
   trusted_origin_scopes = ["CORS", "REDIRECT"]
   
   # Bookmark
-  bookmark_name = "${local.division_name}_${local.cmdb_app_short_name}_SPA_BOOKMARK_${upper(local.environment)}"
   bookmark_label = "${local.parent_cmdb_name} Frontend Admin (${local.environment})"
   bookmark_url = try(local.bookmarks[0].url, "https://${lower(local.cmdb_app_short_name)}-${local.environment}.example.com")
 }
@@ -94,11 +112,8 @@ module "oauth_3leg_backend" {
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_WA_${upper(local.environment)}"
   
   # OAuth configuration
-  grant_types = ["authorization_code", "refresh_token"]
   redirect_uris = local.oauth_config.redirect_uris
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
-  response_types = ["code"]
-  token_endpoint_auth_method = "client_secret_basic"
   
   # Group configuration
   group_name = "${local.division_name}_${local.cmdb_app_short_name}_WA_ACCESS_${upper(local.environment)}"
@@ -110,7 +125,6 @@ module "oauth_3leg_backend" {
   trusted_origin_scopes = ["CORS", "REDIRECT"]
   
   # Bookmark
-  bookmark_name = "${local.division_name}_${local.cmdb_app_short_name}_WA_BOOKMARK_${upper(local.environment)}"
   bookmark_label = "${local.parent_cmdb_name} Backend Admin (${local.environment})"
   bookmark_url = try(local.bookmarks[0].url, "https://${lower(local.cmdb_app_short_name)}-${local.environment}.example.com")
 }
@@ -123,11 +137,8 @@ module "oauth_3leg_native" {
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_NA_${upper(local.environment)}"
   
   # OAuth configuration
-  grant_types = ["password", "refresh_token", "authorization_code"]
   redirect_uris = local.oauth_config.redirect_uris
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
-  response_types = ["code"]
-  token_endpoint_auth_method = "client_secret_basic"
   
   # Group configuration
   group_name = "${local.division_name}_${local.cmdb_app_short_name}_NA_ACCESS_${upper(local.environment)}"
@@ -139,7 +150,6 @@ module "oauth_3leg_native" {
   trusted_origin_scopes = ["CORS", "REDIRECT"]
   
   # Bookmark
-  bookmark_name = "${local.division_name}_${local.cmdb_app_short_name}_NA_BOOKMARK_${upper(local.environment)}"
   bookmark_label = "${local.parent_cmdb_name} Native Admin (${local.environment})"
   bookmark_url = try(local.bookmarks[0].url, "https://${lower(local.cmdb_app_short_name)}-${local.environment}.example.com")
 } 

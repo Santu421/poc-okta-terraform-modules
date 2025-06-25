@@ -5,10 +5,106 @@ variable "app_label" {
   type        = string
 }
 
-# Optional OAuth app parameters - only those relevant for 2-leg service apps
+variable "group_name" {
+  description = "Group name for API access"
+  type        = string
+}
+
+variable "group_description" {
+  description = "Group description"
+  type        = string
+}
+
+# Accessibility parameters
+variable "accessibility_error_redirect_url" {
+  description = "Custom error page URL"
+  type        = string
+  default     = null
+}
+
+variable "accessibility_login_redirect_url" {
+  description = "Custom login page URL"
+  type        = string
+  default     = null
+}
+
+variable "accessibility_self_service" {
+  description = "Enable self-service"
+  type        = bool
+  default     = null
+}
+
+# Application metadata
+variable "admin_note" {
+  description = "Application notes for admins"
+  type        = string
+  default     = null
+}
+
+variable "enduser_note" {
+  description = "Application notes for end users"
+  type        = string
+  default     = null
+}
+
+variable "app_links_json" {
+  description = "Application links JSON"
+  type        = string
+  default     = null
+}
+
+variable "app_settings_json" {
+  description = "Application settings JSON"
+  type        = string
+  default     = null
+}
+
+variable "authentication_policy" {
+  description = "Authentication policy ID"
+  type        = string
+  default     = null
+}
+
+variable "auto_key_rotation" {
+  description = "Auto key rotation"
+  type        = bool
+  default     = null
+}
+
 variable "auto_submit_toolbar" {
   description = "Display auto submit toolbar"
   type        = bool
+  default     = null
+}
+
+variable "client_basic_secret" {
+  description = "Client basic secret"
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "client_id" {
+  description = "Client ID"
+  type        = string
+  default     = null
+}
+
+variable "client_uri" {
+  description = "Client URI"
+  type        = string
+  default     = null
+}
+
+variable "consent_method" {
+  description = "Consent method"
+  type        = string
+  default     = null
+}
+
+variable "grant_types" {
+  description = "Grant types"
+  type        = set(string)
   default     = null
 }
 
@@ -24,32 +120,44 @@ variable "hide_web" {
   default     = null
 }
 
+variable "implicit_assignment" {
+  description = "Implicit assignment"
+  type        = bool
+  default     = null
+}
+
 variable "issuer_mode" {
   description = "Issuer mode"
   type        = string
   default     = null
 }
 
-variable "pkce_required" {
-  description = "Require PKCE for authorization code flow"
-  type        = bool
-  default     = null
-}
-
-variable "consent_method" {
-  description = "Consent method"
+variable "jwks_uri" {
+  description = "JWKS URI"
   type        = string
   default     = null
 }
 
-variable "custom_client_id" {
-  description = "Custom client ID"
+variable "login_mode" {
+  description = "Login mode"
   type        = string
   default     = null
 }
 
-variable "client_uri" {
-  description = "Client URI"
+variable "login_scopes" {
+  description = "Login scopes"
+  type        = set(string)
+  default     = null
+}
+
+variable "login_uri" {
+  description = "Login URI"
+  type        = string
+  default     = null
+}
+
+variable "logo" {
+  description = "Logo"
   type        = string
   default     = null
 }
@@ -60,8 +168,68 @@ variable "logo_uri" {
   default     = null
 }
 
+variable "omit_secret" {
+  description = "Omit secret"
+  type        = bool
+  default     = null
+}
+
+variable "pkce_required" {
+  description = "Require PKCE for authorization code flow"
+  type        = bool
+  default     = null
+}
+
 variable "policy_uri" {
   description = "Policy URI"
+  type        = string
+  default     = null
+}
+
+variable "post_logout_redirect_uris" {
+  description = "Post logout redirect URIs"
+  type        = set(string)
+  default     = null
+}
+
+variable "profile" {
+  description = "Application profile"
+  type        = string
+  default     = null
+}
+
+variable "redirect_uris" {
+  description = "Redirect URIs"
+  type        = list(string)
+  default     = null
+}
+
+variable "refresh_token_leeway" {
+  description = "Refresh token leeway"
+  type        = number
+  default     = null
+}
+
+variable "refresh_token_rotation" {
+  description = "Refresh token rotation"
+  type        = string
+  default     = null
+}
+
+variable "response_types" {
+  description = "Response types"
+  type        = set(string)
+  default     = null
+}
+
+variable "status" {
+  description = "Application status"
+  type        = string
+  default     = null
+}
+
+variable "token_endpoint_auth_method" {
+  description = "Token endpoint auth method"
   type        = string
   default     = null
 }
@@ -72,100 +240,33 @@ variable "tos_uri" {
   default     = null
 }
 
-variable "profile" {
-  description = "Application profile"
-  type        = map(string)
-  default     = null
-}
-
-variable "jwks_uri" {
-  description = "JWKS URI"
+variable "user_name_template" {
+  description = "User name template"
   type        = string
   default     = null
 }
 
-variable "client_basic_secret" {
-  description = "Client basic secret"
-  type        = string
-  default     = null
-  sensitive   = true
-}
-
-variable "token_endpoint_auth_signature" {
-  description = "Token endpoint auth signature"
+variable "user_name_template_push_status" {
+  description = "User name template push status"
   type        = string
   default     = null
 }
 
-variable "trust_groups" {
-  description = "Trust groups"
-  type        = list(string)
-  default     = null
-}
-
-variable "trust_zones" {
-  description = "Trust zones"
-  type        = list(string)
-  default     = null
-}
-
-variable "custom_setup_property" {
-  description = "Custom setup property"
+variable "user_name_template_suffix" {
+  description = "User name template suffix"
   type        = string
   default     = null
 }
 
-variable "external_id" {
-  description = "External ID"
+variable "user_name_template_type" {
+  description = "User name template type"
   type        = string
   default     = null
 }
 
-variable "features" {
-  description = "Application features"
-  type        = list(string)
-  default     = null
-}
-
-variable "inline_hook_id" {
-  description = "Inline hook ID"
+variable "wildcard_redirect" {
+  description = "Wildcard redirect"
   type        = string
-  default     = null
-}
-
-variable "notes" {
-  description = "Application notes"
-  type        = string
-  default     = null
-}
-
-variable "omit_secret" {
-  description = "Omit secret"
-  type        = bool
-  default     = null
-}
-
-variable "pending_changes" {
-  description = "Pending changes"
-  type        = string
-  default     = null
-}
-
-variable "sign_on_mode" {
-  description = "Sign on mode"
-  type        = string
-  default     = null
-}
-
-variable "status" {
-  description = "Application status"
-  type        = string
-  default     = null
-}
-
-variable "timeouts" {
-  description = "Timeouts"
-  type        = map(string)
   default     = null
 }
 
@@ -186,12 +287,6 @@ variable "trusted_origin_scopes" {
   description = "Trusted origin scopes"
   type        = list(string)
   default     = ["CORS"]
-}
-
-variable "trusted_origin_status" {
-  description = "Trusted origin status"
-  type        = string
-  default     = "ACTIVE"
 }
 
 # Bookmark variables
