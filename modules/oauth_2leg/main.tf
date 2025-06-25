@@ -15,7 +15,7 @@ resource "okta_app_oauth" "oauth_2leg" {
   type                                 = "service"
   grant_types                          = ["client_credentials"]
   response_types                       = ["token"]
-  token_endpoint_auth_method          = "client_secret_basic"
+  token_endpoint_auth_method          = try(var.token_endpoint_auth_method, null)
   
   # All optional parameters from Okta provider documentation
   accessibility_error_redirect_url     = try(var.accessibility_error_redirect_url, null)
@@ -32,11 +32,10 @@ resource "okta_app_oauth" "oauth_2leg" {
   client_uri                           = try(var.client_uri, null)
   consent_method                       = try(var.consent_method, null)
   enduser_note                         = try(var.enduser_note, null)
-  grant_types                          = try(var.grant_types, null)
   hide_ios                             = try(var.hide_ios, null)
   hide_web                             = try(var.hide_web, null)
   implicit_assignment                  = try(var.implicit_assignment, null)
-  issuer_mode                          = try(var.issuer_mode, null)
+  issuer_mode                          = try(var.issuer_mode, null)  # Read-only — used only for output
   jwks_uri                             = try(var.jwks_uri, null)
   login_mode                           = try(var.login_mode, null)
   login_scopes                         = try(var.login_scopes, null)
@@ -51,44 +50,11 @@ resource "okta_app_oauth" "oauth_2leg" {
   redirect_uris                        = try(var.redirect_uris, null)
   refresh_token_leeway                = try(var.refresh_token_leeway, null)
   refresh_token_rotation              = try(var.refresh_token_rotation, null)
-  response_types                       = try(var.response_types, null)
   status                               = try(var.status, null)
-  token_endpoint_auth_method          = try(var.token_endpoint_auth_method, null)
   tos_uri                              = try(var.tos_uri, null)
   user_name_template                   = try(var.user_name_template, null)
   user_name_template_push_status      = try(var.user_name_template_push_status, null)
   user_name_template_suffix           = try(var.user_name_template_suffix, null)
   user_name_template_type             = try(var.user_name_template_type, null)
   wildcard_redirect                    = try(var.wildcard_redirect, null)
-}
-
-# Group for API access
-resource "okta_group" "oauth_2leg_group" {
-  name        = var.group_name
-  description = var.group_description
-}
-
-# App-Group Assignment
-resource "okta_app_group_assignment" "oauth_2leg_assignment" {
-  app_id   = okta_app_oauth.oauth_2leg.id
-  group_id = okta_group.oauth_2leg_group.id
-}
-
-# Trusted Origin (if needed for API endpoints)
-resource "okta_trusted_origin" "oauth_2leg_origin" {
-  count  = var.trusted_origin_url != null ? 1 : 0
-  name   = var.trusted_origin_name
-  origin = var.trusted_origin_url
-  scopes = var.trusted_origin_scopes
-}
-
-# Bookmark App (optional - for admin access)
-resource "okta_app_bookmark" "oauth_2leg_bookmark" {
-  count               = var.bookmark_url != null ? 1 : 0
-  label               = var.bookmark_label
-  url                 = var.bookmark_url
-  status              = var.bookmark_status
-  auto_submit_toolbar = var.bookmark_auto_submit_toolbar
-  hide_ios            = var.bookmark_hide_ios
-  hide_web            = var.bookmark_hide_web
 } 

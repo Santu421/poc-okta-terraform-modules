@@ -9,7 +9,6 @@ variable "okta_org_name" {
 variable "okta_base_url" {
   description = "Okta base URL (e.g., https://your-org.okta.com)"
   type        = string
-  default     = "https://your-org.okta.com"
 }
 
 variable "okta_api_token" {
@@ -23,6 +22,11 @@ variable "app_config_path" {
   description = "Path to the application configuration files (metadata.yaml and environment.yaml)"
   type        = string
   default     = "./app-config"
+}
+
+variable "app_name" {
+  description = "Application name (e.g., AD, XYZ) used in file naming"
+  type        = string
 }
 
 variable "environment" {

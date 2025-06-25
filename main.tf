@@ -8,11 +8,14 @@ provider "okta" {
   api_token = var.okta_api_token
 }
 
-# Call the main module with the provided variables
-module "okta_apps" {
+# Call the main orchestration module
+module "main" {
   source = "./main"
   
   # Pass through the required variables
   app_config_path = var.app_config_path
+  app_name        = var.app_name
   environment     = var.environment
-} 
+}
+
+# (Removed module "okta_apps" block as it is not needed) 

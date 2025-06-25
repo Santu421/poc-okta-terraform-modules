@@ -5,16 +5,6 @@ variable "app_label" {
   type        = string
 }
 
-variable "group_name" {
-  description = "Group name for API access"
-  type        = string
-}
-
-variable "group_description" {
-  description = "Group description"
-  type        = string
-}
-
 # Accessibility parameters
 variable "accessibility_error_redirect_url" {
   description = "Custom error page URL"
@@ -268,60 +258,4 @@ variable "wildcard_redirect" {
   description = "Wildcard redirect"
   type        = string
   default     = null
-}
-
-# Trusted Origin variables
-variable "trusted_origin_name" {
-  description = "Trusted origin name"
-  type        = string
-  default     = null
-}
-
-variable "trusted_origin_url" {
-  description = "Trusted origin URL"
-  type        = string
-  default     = null
-}
-
-variable "trusted_origin_scopes" {
-  description = "Trusted origin scopes"
-  type        = list(string)
-  default     = ["CORS"]
-}
-
-# Bookmark variables
-variable "bookmark_label" {
-  description = "Bookmark app label"
-  type        = string
-  default     = null
-}
-
-variable "bookmark_url" {
-  description = "Bookmark app URL"
-  type        = string
-  default     = null
-}
-
-variable "bookmark_status" {
-  description = "Bookmark app status"
-  type        = string
-  default     = "ACTIVE"
-}
-
-variable "bookmark_auto_submit_toolbar" {
-  description = "Bookmark auto submit toolbar"
-  type        = bool
-  default     = false
-}
-
-variable "bookmark_hide_ios" {
-  description = "Bookmark hide from iOS"
-  type        = bool
-  default     = false
-}
-
-variable "bookmark_hide_web" {
-  description = "Bookmark hide from web"
-  type        = bool
-  default     = false
 } 

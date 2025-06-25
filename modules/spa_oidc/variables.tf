@@ -199,12 +199,6 @@ variable "profile" {
   default     = null
 }
 
-variable "redirect_uris" {
-  description = "Redirect URIs"
-  type        = list(string)
-  default     = null
-}
-
 variable "refresh_token_leeway" {
   description = "Refresh token leeway"
   type        = number

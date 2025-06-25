@@ -3,7 +3,7 @@
 
 # Read and parse the metadata file
 locals {
-  metadata_file = file("${var.app_config_path}/metadata.yaml")
+  metadata_file = file("${var.app_config_path}/${var.app_name}-metadata.yaml")
   metadata      = yamldecode(local.metadata_file)
   
   # Extract metadata values
@@ -16,15 +16,17 @@ locals {
 
 # Read and parse the environment-specific config file
 locals {
-  env_config_file = file("${var.app_config_path}/${var.environment}.yaml")
+  env_config_file = file("${var.app_config_path}/${var.environment}/${var.app_name}-${var.environment}.yaml")
   env_config      = yamldecode(local.env_config_file)
   
   # Extract environment config values
   environment = local.env_config.environment
   app_config  = local.env_config.app_config
-  oauth_config = local.env_config.oauth_config
-  trusted_origins = local.env_config.trusted_origins
-  bookmarks = local.env_config.bookmarks
+  
+  # Optional fields that may not exist in simple configs
+  oauth_config = try(local.env_config.oauth_config, {})
+  trusted_origins = try(local.env_config.trusted_origins, [])
+  bookmarks = try(local.env_config.bookmarks, [])
 }
 
 # Create 2-leg OAuth app if enabled
@@ -34,49 +36,46 @@ module "oauth_2leg" {
   
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_API_SVCS_${upper(local.environment)}"
   
-  # Group configuration
-  group_name = "${local.division_name}_${local.cmdb_app_short_name}_API_ACCESS_${upper(local.environment)}"
-  group_description = "Access group for ${local.parent_cmdb_name} API Services (${local.environment})"
-  
-  # Valid OAuth app attributes from Okta provider documentation
-  auto_submit_toolbar        = try(local.env_config.auto_submit_toolbar, null)
-  hide_ios                   = try(local.env_config.hide_ios, null)
-  hide_web                   = try(local.env_config.hide_web, null)
-  issuer_mode                = try(local.env_config.issuer_mode, null)
-  pkce_required              = try(local.env_config.pkce_required, null)
-  consent_method            = try(local.env_config.consent_method, null)
-  custom_client_id          = try(local.env_config.custom_client_id, null)
-  client_uri                = try(local.env_config.client_uri, null)
-  logo_uri                  = try(local.env_config.logo_uri, null)
-  policy_uri                = try(local.env_config.policy_uri, null)
-  tos_uri                   = try(local.env_config.tos_uri, null)
-  profile                   = try(local.env_config.profile, null)
-  jwks_uri                  = try(local.env_config.jwks_uri, null)
-  client_basic_secret       = try(local.env_config.client_basic_secret, null)
-  token_endpoint_auth_signature = try(local.env_config.token_endpoint_auth_signature, null)
-  trust_groups              = try(local.env_config.trust_groups, null)
-  trust_zones               = try(local.env_config.trust_zones, null)
-  custom_setup_property     = try(local.env_config.custom_setup_property, null)
-  external_id               = try(local.env_config.external_id, null)
-  features                  = try(local.env_config.features, null)
-  inline_hook_id            = try(local.env_config.inline_hook_id, null)
-  notes                     = try(local.env_config.notes, null)
-  sign_on_mode              = try(local.env_config.sign_on_mode, null)
-  status                    = try(local.env_config.status, null)
-  timeouts                  = try(local.env_config.timeouts, null)
-  
-  # Trusted origin (if specified in YAML)
-  trusted_origin_name = try(local.trusted_origins[0].name, null)
-  trusted_origin_url  = try(local.trusted_origins[0].url, null)
-  trusted_origin_scopes = try(local.trusted_origins[0].scopes, ["CORS"])
-  
-  # Bookmark (if specified in YAML)
-  bookmark_label = try(local.bookmarks[0].name, null)
-  bookmark_url   = try(local.bookmarks[0].url, null)
-  bookmark_status = try(local.bookmarks[0].status, "ACTIVE")
-  bookmark_auto_submit_toolbar = try(local.bookmarks[0].auto_submit_toolbar, false)
-  bookmark_hide_ios = try(local.bookmarks[0].hide_ios, false)
-  bookmark_hide_web = try(local.bookmarks[0].hide_web, false)
+  # All optional OAuth app parameters - use try() to handle missing fields
+  accessibility_error_redirect_url     = try(local.oauth_config.accessibility_error_redirect_url, null)
+  accessibility_login_redirect_url     = try(local.oauth_config.accessibility_login_redirect_url, null)
+  accessibility_self_service           = try(local.oauth_config.accessibility_self_service, null)
+  admin_note                           = try(local.oauth_config.admin_note, null)
+  app_links_json                       = try(local.oauth_config.app_links_json, null)
+  app_settings_json                    = try(local.oauth_config.app_settings_json, null)
+  authentication_policy                = try(local.oauth_config.authentication_policy, null)
+  auto_key_rotation                    = try(local.oauth_config.auto_key_rotation, null)
+  auto_submit_toolbar                  = try(local.oauth_config.auto_submit_toolbar, null)
+  client_basic_secret                  = try(local.oauth_config.client_basic_secret, null)
+  client_id                            = try(local.oauth_config.client_id, null)
+  client_uri                           = try(local.oauth_config.client_uri, null)
+  consent_method                       = try(local.oauth_config.consent_method, null)
+  enduser_note                         = try(local.oauth_config.enduser_note, null)
+  hide_ios                             = try(local.oauth_config.hide_ios, null)
+  hide_web                             = try(local.oauth_config.hide_web, null)
+  implicit_assignment                  = try(local.oauth_config.implicit_assignment, null)
+  issuer_mode                          = try(local.oauth_config.issuer_mode, null)
+  jwks_uri                             = try(local.oauth_config.jwks_uri, null)
+  login_mode                           = try(local.oauth_config.login_mode, null)
+  login_scopes                         = try(local.oauth_config.login_scopes, null)
+  login_uri                            = try(local.oauth_config.login_uri, null)
+  logo                                 = try(local.oauth_config.logo, null)
+  logo_uri                             = try(local.oauth_config.logo_uri, null)
+  omit_secret                          = try(local.oauth_config.omit_secret, null)
+  pkce_required                        = try(local.oauth_config.pkce_required, null)
+  policy_uri                           = try(local.oauth_config.policy_uri, null)
+  post_logout_redirect_uris           = try(local.oauth_config.post_logout_redirect_uris, null)
+  profile                              = try(local.oauth_config.profile, null)
+  redirect_uris                        = try(local.oauth_config.redirect_uris, null)
+  refresh_token_leeway                = try(local.oauth_config.refresh_token_leeway, null)
+  refresh_token_rotation              = try(local.oauth_config.refresh_token_rotation, null)
+  status                               = try(local.oauth_config.status, null)
+  tos_uri                              = try(local.oauth_config.tos_uri, null)
+  user_name_template                   = try(local.oauth_config.user_name_template, null)
+  user_name_template_push_status      = try(local.oauth_config.user_name_template_push_status, null)
+  user_name_template_suffix           = try(local.oauth_config.user_name_template_suffix, null)
+  user_name_template_type             = try(local.oauth_config.user_name_template_type, null)
+  wildcard_redirect                    = try(local.oauth_config.wildcard_redirect, null)
 }
 
 # Create 3-leg frontend OAuth app if enabled
@@ -87,7 +86,7 @@ module "oauth_3leg_frontend" {
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_SPA_${upper(local.environment)}"
   
   # OAuth configuration
-  redirect_uris = local.oauth_config.redirect_uris
+  redirect_uris = try(local.oauth_config.redirect_uris, [])
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
   
   # Group configuration
@@ -112,7 +111,7 @@ module "oauth_3leg_backend" {
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_WA_${upper(local.environment)}"
   
   # OAuth configuration
-  redirect_uris = local.oauth_config.redirect_uris
+  redirect_uris = try(local.oauth_config.redirect_uris, [])
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
   
   # Group configuration
@@ -137,7 +136,7 @@ module "oauth_3leg_native" {
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_NA_${upper(local.environment)}"
   
   # OAuth configuration
-  redirect_uris = local.oauth_config.redirect_uris
+  redirect_uris = try(local.oauth_config.redirect_uris, [])
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
   
   # Group configuration
