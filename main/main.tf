@@ -94,6 +94,15 @@ module "oauth_3leg_frontend" {
   app_label = "${local.division}_${local.cmdb_app_short_name}_OIDC_SPA"
   client_id = "${local.division}_${local.cmdb_app_short_name}_OIDC_SPA"
   
+  # Set profile with all metadata fields
+  profile = jsonencode({
+    parent_cmdb_name    = local.parent_cmdb_name
+    division            = local.division
+    cmdb_app_short_name = local.cmdb_app_short_name
+    team_dl             = local.team_dl
+    requested_by        = local.requested_by
+  })
+  
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
@@ -120,6 +129,15 @@ module "oauth_3leg_backend" {
   app_label = "${local.division}_${local.cmdb_app_short_name}_OIDC_WA"
   client_id = "${local.division}_${local.cmdb_app_short_name}_OIDC_WA"
   
+  # Set profile with all metadata fields
+  profile = jsonencode({
+    parent_cmdb_name    = local.parent_cmdb_name
+    division            = local.division
+    cmdb_app_short_name = local.cmdb_app_short_name
+    team_dl             = local.team_dl
+    requested_by        = local.requested_by
+  })
+  
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
   post_logout_uris = try(local.oauth_config.post_logout_uris, [])
@@ -145,6 +163,15 @@ module "oauth_3leg_native" {
   
   app_label = "${local.division}_${local.cmdb_app_short_name}_OIDC_NA"
   client_id = "${local.division}_${local.cmdb_app_short_name}_OIDC_NA"
+  
+  # Set profile with all metadata fields
+  profile = jsonencode({
+    parent_cmdb_name    = local.parent_cmdb_name
+    division            = local.division
+    cmdb_app_short_name = local.cmdb_app_short_name
+    team_dl             = local.team_dl
+    requested_by        = local.requested_by
+  })
   
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
