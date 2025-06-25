@@ -23,10 +23,10 @@ output "oauth_2leg_group_id" {
 
 output "oauth_2leg_trusted_origin_id" {
   description = "OAuth 2-Leg trusted origin ID"
-  value       = okta_trusted_origin.oauth_2leg_origin.id
+  value       = var.trusted_origin_url != null ? okta_trusted_origin.oauth_2leg_origin[0].id : null
 }
 
 output "oauth_2leg_bookmark_id" {
   description = "OAuth 2-Leg bookmark app ID"
-  value       = okta_app_bookmark.oauth_2leg_bookmark.id
+  value       = var.bookmark_url != null ? okta_app_bookmark.oauth_2leg_bookmark[0].id : null
 } 
