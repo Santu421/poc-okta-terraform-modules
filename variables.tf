@@ -1,4 +1,4 @@
-# Main Terraform Variables
+# Root Terraform Variables
 
 # Okta Provider Variables
 variable "okta_org_name" {
