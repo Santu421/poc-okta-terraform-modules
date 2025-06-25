@@ -35,6 +35,7 @@ module "oauth_2leg" {
   source = "../modules/oauth_2leg"
   
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_API_SVCS"
+  client_id = "${local.division_name}_${local.cmdb_app_short_name}_API_SVCS"
   
   # All optional OAuth app parameters - use try() to handle missing fields
   accessibility_error_redirect_url     = try(local.oauth_config.accessibility_error_redirect_url, null)
@@ -47,7 +48,6 @@ module "oauth_2leg" {
   auto_key_rotation                    = try(local.oauth_config.auto_key_rotation, null)
   auto_submit_toolbar                  = try(local.oauth_config.auto_submit_toolbar, null)
   client_basic_secret                  = try(local.oauth_config.client_basic_secret, null)
-  client_id                            = try(local.oauth_config.client_id, null)
   client_uri                           = try(local.oauth_config.client_uri, null)
   consent_method                       = try(local.oauth_config.consent_method, null)
   enduser_note                         = try(local.oauth_config.enduser_note, null)
@@ -84,6 +84,7 @@ module "oauth_3leg_frontend" {
   source = "../modules/spa_oidc"
   
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_SPA"
+  client_id = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_SPA"
   
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
@@ -109,6 +110,7 @@ module "oauth_3leg_backend" {
   source = "../modules/web_oidc"
   
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_WA"
+  client_id = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_WA"
   
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
@@ -134,6 +136,7 @@ module "oauth_3leg_native" {
   source = "../modules/na_oidc"
   
   app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_NA"
+  client_id = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_NA"
   
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
