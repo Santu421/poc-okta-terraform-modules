@@ -34,7 +34,7 @@ module "oauth_2leg" {
   count  = local.app_config.create_2leg ? 1 : 0
   source = "../modules/oauth_2leg"
   
-  app_label = "${local.division_name}_${local.cmdb_app_short_name}_API_SVCS_${upper(local.environment)}"
+  app_label = "${local.division_name}_${local.cmdb_app_short_name}_API_SVCS"
   
   # All optional OAuth app parameters - use try() to handle missing fields
   accessibility_error_redirect_url     = try(local.oauth_config.accessibility_error_redirect_url, null)
@@ -83,7 +83,7 @@ module "oauth_3leg_frontend" {
   count  = local.app_config.create_3leg_frontend ? 1 : 0
   source = "../modules/spa_oidc"
   
-  app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_SPA_${upper(local.environment)}"
+  app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_SPA"
   
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
@@ -108,7 +108,7 @@ module "oauth_3leg_backend" {
   count  = local.app_config.create_3leg_backend ? 1 : 0
   source = "../modules/web_oidc"
   
-  app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_WA_${upper(local.environment)}"
+  app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_WA"
   
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
@@ -133,7 +133,7 @@ module "oauth_3leg_native" {
   count  = local.app_config.create_3leg_native ? 1 : 0
   source = "../modules/na_oidc"
   
-  app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_NA_${upper(local.environment)}"
+  app_label = "${local.division_name}_${local.cmdb_app_short_name}_OIDC_NA"
   
   # OAuth configuration
   redirect_uris = try(local.oauth_config.redirect_uris, [])
