@@ -31,16 +31,4 @@ variable "environment" {
     condition     = contains(["dev", "uat", "prod"], var.environment)
     error_message = "Environment must be one of: dev, uat, prod."
   }
-}
-
-# App-specific variables (from .tfvars files)
-variable "app_label" {
-  description = "Application label for Okta app"
-  type        = string
-}
-
-variable "token_endpoint_auth_method" {
-  description = "Token endpoint authentication method"
-  type        = string
-  default     = "client_secret_basic"
 } 
