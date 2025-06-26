@@ -1,9 +1,14 @@
 # Main Terraform Configuration
 # This file orchestrates the creation of Okta resources based on YAML configurations
 
+# Extract short app name from app_config_path
+locals {
+  app_short_name = basename(var.app_config_path)
+}
+
 # Read and parse the metadata file
 locals {
-  metadata_file = file("${var.app_config_path}/${var.app_name}-metadata.yaml")
+  metadata_file = file("${var.app_config_path}/${local.app_short_name}-metadata.yaml")
   metadata      = yamldecode(local.metadata_file)
   
   # Extract metadata values
@@ -16,7 +21,7 @@ locals {
 
 # Read and parse the environment-specific config file
 locals {
-  env_config_file = file("${var.app_config_path}/${var.environment}/${var.app_name}-${var.environment}.yaml")
+  env_config_file = file("${var.app_config_path}/${var.environment}/${local.cmdb_app_short_name}-${var.environment}.yaml")
   env_config      = yamldecode(local.env_config_file)
   
   # Extract environment config values

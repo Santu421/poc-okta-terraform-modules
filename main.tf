@@ -14,7 +14,6 @@ module "main" {
   
   # Pass through the required variables
   app_config_path = var.app_config_path
-  app_name        = var.app_name
   environment     = var.environment
 }
 

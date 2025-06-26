@@ -5,11 +5,6 @@ variable "app_config_path" {
   type        = string
 }
 
-variable "app_name" {
-  description = "Application name (e.g., AD, XYZ) used in file naming"
-  type        = string
-}
-
 variable "environment" {
   description = "Environment name (dev, uat, prod)"
   type        = string
