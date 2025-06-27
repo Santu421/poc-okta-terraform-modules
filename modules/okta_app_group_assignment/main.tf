@@ -2,11 +2,13 @@
 data "okta_app" "apps" {
   for_each = { for a in var.assignments : a.app_name => a }
   label    = each.value.app_name
+  include  = false
 }
 
 data "okta_group" "groups" {
   for_each = { for a in var.assignments : a.group_name => a }
   name     = each.value.group_name
+  include  = false
 }
 
 # Create app-group assignments
