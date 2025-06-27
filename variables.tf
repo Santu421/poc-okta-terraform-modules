@@ -32,245 +32,121 @@ variable "environment" {
   }
 }
 
-# OAuth 2-Leg variables
-variable "app_label" {
-  description = "OAuth 2-Leg application label"
-  type        = string
-  default     = null
+# OAuth 2-Leg Configuration Map
+variable "oauth2" {
+  description = "OAuth 2-Leg application configuration"
+  type = object({
+    app_label = optional(string)
+    token_endpoint_auth_method = optional(string, "client_secret_basic")
+    omit_secret = optional(bool, true)
+    auto_key_rotation = optional(bool, true)
+    auto_submit_toolbar = optional(bool, false)
+    hide_ios = optional(bool, true)
+    hide_web = optional(bool, true)
+    issuer_mode = optional(string, "ORG_URL")
+    consent_method = optional(string, "TRUSTED")
+    login_mode = optional(string, "DISABLED")
+    status = optional(string, "ACTIVE")
+    client_basic_secret = optional(string)
+    client_id = optional(string)
+    
+    # Additional optional variables
+    accessibility_error_redirect_url = optional(string)
+    accessibility_login_redirect_url = optional(string)
+    accessibility_self_service = optional(bool)
+    admin_note = optional(string)
+    enduser_note = optional(string)
+    app_links_json = optional(string)
+    app_settings_json = optional(string)
+    authentication_policy = optional(string)
+    client_uri = optional(string)
+    implicit_assignment = optional(bool)
+    jwks_uri = optional(string)
+    login_scopes = optional(list(string))
+    login_uri = optional(string)
+    logo = optional(string)
+    logo_uri = optional(string)
+    pkce_required = optional(bool)
+    policy_uri = optional(string)
+    post_logout_redirect_uris = optional(list(string))
+    redirect_uris = optional(list(string))
+    refresh_token_leeway = optional(number)
+    refresh_token_rotation = optional(string)
+    tos_uri = optional(string)
+    user_name_template = optional(string)
+    user_name_template_push_status = optional(string)
+    user_name_template_suffix = optional(string)
+    user_name_template_type = optional(string)
+    wildcard_redirect = optional(string)
+  })
+  default = {}
+  sensitive = false
 }
 
-variable "token_endpoint_auth_method" {
-  description = "OAuth 2-Leg token endpoint auth method"
-  type        = string
-  default     = "client_secret_basic"
-}
-
-variable "omit_secret" {
-  description = "OAuth 2-Leg omit secret"
-  type        = bool
-  default     = true
-}
-
-variable "auto_key_rotation" {
-  description = "OAuth 2-Leg auto key rotation"
-  type        = bool
-  default     = true
-}
-
-variable "auto_submit_toolbar" {
-  description = "OAuth 2-Leg auto submit toolbar"
-  type        = bool
-  default     = false
-}
-
-variable "hide_ios" {
-  description = "OAuth 2-Leg hide iOS"
-  type        = bool
-  default     = true
-}
-
-variable "hide_web" {
-  description = "OAuth 2-Leg hide web"
-  type        = bool
-  default     = true
-}
-
-variable "issuer_mode" {
-  description = "OAuth 2-Leg issuer mode"
-  type        = string
-  default     = "ORG_URL"
-}
-
-variable "consent_method" {
-  description = "OAuth 2-Leg consent method"
-  type        = string
-  default     = "TRUSTED"
-}
-
-variable "login_mode" {
-  description = "OAuth 2-Leg login mode"
-  type        = string
-  default     = "DISABLED"
-}
-
-variable "status" {
-  description = "OAuth 2-Leg status"
-  type        = string
-  default     = "ACTIVE"
-}
-
-variable "client_basic_secret" {
-  description = "OAuth 2-Leg client basic secret"
-  type        = string
-  default     = null
-  sensitive   = true
-}
-
-# Additional optional variables
-variable "accessibility_error_redirect_url" {
-  description = "Accessibility error redirect URL"
-  type        = string
-  default     = null
-}
-
-variable "accessibility_login_redirect_url" {
-  description = "Accessibility login redirect URL"
-  type        = string
-  default     = null
-}
-
-variable "accessibility_self_service" {
-  description = "Accessibility self service"
-  type        = bool
-  default     = null
-}
-
-variable "admin_note" {
-  description = "Admin note"
-  type        = string
-  default     = null
-}
-
-variable "enduser_note" {
-  description = "End user note"
-  type        = string
-  default     = null
-}
-
-variable "app_links_json" {
-  description = "App links JSON"
-  type        = string
-  default     = null
-}
-
-variable "app_settings_json" {
-  description = "App settings JSON"
-  type        = string
-  default     = null
-}
-
-variable "authentication_policy" {
-  description = "Authentication policy"
-  type        = string
-  default     = null
-}
-
-variable "client_id" {
-  description = "Client ID"
-  type        = string
-  default     = null
-}
-
-variable "client_uri" {
-  description = "Client URI"
-  type        = string
-  default     = null
-}
-
-variable "implicit_assignment" {
-  description = "Implicit assignment"
-  type        = bool
-  default     = null
-}
-
-variable "jwks_uri" {
-  description = "JWKS URI"
-  type        = string
-  default     = null
-}
-
-variable "login_scopes" {
-  description = "Login scopes"
-  type        = list(string)
-  default     = null
-}
-
-variable "login_uri" {
-  description = "Login URI"
-  type        = string
-  default     = null
-}
-
-variable "logo" {
-  description = "Logo"
-  type        = string
-  default     = null
-}
-
-variable "logo_uri" {
-  description = "Logo URI"
-  type        = string
-  default     = null
-}
-
-variable "pkce_required" {
-  description = "PKCE required"
-  type        = bool
-  default     = null
-}
-
-variable "policy_uri" {
-  description = "Policy URI"
-  type        = string
-  default     = null
-}
-
-variable "post_logout_redirect_uris" {
-  description = "Post logout redirect URIs"
-  type        = list(string)
-  default     = null
-}
-
-variable "redirect_uris" {
-  description = "Redirect URIs"
-  type        = list(string)
-  default     = null
-}
-
-variable "refresh_token_leeway" {
-  description = "Refresh token leeway"
-  type        = number
-  default     = null
-}
-
-variable "refresh_token_rotation" {
-  description = "Refresh token rotation"
-  type        = string
-  default     = null
-}
-
-variable "tos_uri" {
-  description = "Terms of service URI"
-  type        = string
-  default     = null
-}
-
-variable "user_name_template" {
-  description = "User name template"
-  type        = string
-  default     = null
-}
-
-variable "user_name_template_push_status" {
-  description = "User name template push status"
-  type        = string
-  default     = null
-}
-
-variable "user_name_template_suffix" {
-  description = "User name template suffix"
-  type        = string
-  default     = null
-}
-
-variable "user_name_template_type" {
-  description = "User name template type"
-  type        = string
-  default     = null
-}
-
-variable "wildcard_redirect" {
-  description = "Wildcard redirect"
-  type        = string
-  default     = null
+# SPA 3-Leg Configuration Map
+variable "spa" {
+  description = "SPA 3-Leg application configuration"
+  type = object({
+    app_label = optional(string)
+    token_endpoint_auth_method = optional(string, "none")
+    omit_secret = optional(bool, true)
+    auto_key_rotation = optional(bool, true)
+    auto_submit_toolbar = optional(bool, false)
+    hide_ios = optional(bool, false)
+    hide_web = optional(bool, false)
+    issuer_mode = optional(string, "ORG_URL")
+    consent_method = optional(string, "TRUSTED")
+    login_mode = optional(string, "DISABLED")
+    status = optional(string, "ACTIVE")
+    client_basic_secret = optional(string)
+    client_id = optional(string)
+    pkce_required = optional(bool, true)
+    redirect_uris = optional(list(string))
+    post_logout_redirect_uris = optional(list(string))
+    
+    # Additional optional OAuth variables
+    accessibility_error_redirect_url = optional(string)
+    accessibility_login_redirect_url = optional(string)
+    accessibility_self_service = optional(bool)
+    admin_note = optional(string)
+    enduser_note = optional(string)
+    app_links_json = optional(string)
+    app_settings_json = optional(string)
+    authentication_policy = optional(string)
+    client_uri = optional(string)
+    implicit_assignment = optional(bool)
+    jwks_uri = optional(string)
+    login_scopes = optional(list(string))
+    login_uri = optional(string)
+    logo = optional(string)
+    logo_uri = optional(string)
+    policy_uri = optional(string)
+    refresh_token_leeway = optional(number)
+    refresh_token_rotation = optional(string)
+    tos_uri = optional(string)
+    user_name_template = optional(string)
+    user_name_template_push_status = optional(string)
+    user_name_template_suffix = optional(string)
+    user_name_template_type = optional(string)
+    wildcard_redirect = optional(string)
+    
+    # Group variables
+    group_name = optional(string)
+    group_description = optional(string)
+    
+    # Trusted Origin variables
+    trusted_origin_name = optional(string)
+    trusted_origin_url = optional(string)
+    trusted_origin_scopes = optional(list(string), ["CORS", "REDIRECT"])
+    
+    # Bookmark variables
+    bookmark_label = optional(string)
+    bookmark_url = optional(string)
+    bookmark_status = optional(string, "ACTIVE")
+    bookmark_auto_submit_toolbar = optional(bool, false)
+    bookmark_hide_ios = optional(bool, false)
+    bookmark_hide_web = optional(bool, false)
+  })
+  default = {}
+  sensitive = false
 } 
