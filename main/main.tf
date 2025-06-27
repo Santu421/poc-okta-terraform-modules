@@ -28,12 +28,12 @@ locals {
   bookmarks = try(local.env_config.bookmarks, [])
 }
 
-# Create 2-leg OAuth app if enabled
+# Create 2-leg OAuth app if oauth2 object is provided
 module "oauth_2leg" {
-  count  = local.app_config.create_2leg ? 1 : 0
+  count  = var.oauth2 != null ? 1 : 0
   source = "../modules/oauth_2leg"
   
-  app_label = var.oauth2.app_label
+  app_label = var.oauth2.label
   token_endpoint_auth_method = var.oauth2.token_endpoint_auth_method
   omit_secret = var.oauth2.omit_secret
   auto_key_rotation = var.oauth2.auto_key_rotation
@@ -78,12 +78,12 @@ module "oauth_2leg" {
   wildcard_redirect = var.oauth2.wildcard_redirect
 }
 
-# Create 3-leg frontend OAuth app if enabled
+# Create 3-leg frontend OAuth app if spa object is provided
 module "oauth_3leg_frontend" {
-  count  = local.app_config.create_3leg_frontend ? 1 : 0
+  count  = var.spa != null ? 1 : 0
   source = "../modules/spa_oidc"
   
-  app_label = var.spa.app_label
+  app_label = var.spa.label
   profile = local.common_profile
   
   # OAuth App variables

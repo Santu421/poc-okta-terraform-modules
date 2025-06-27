@@ -16,7 +16,7 @@ module "main" {
   app_config_path = var.app_config_path
   environment     = var.environment
   
-  # Pass through the configuration maps
+  # Pass through the configuration objects
   oauth2 = var.oauth2
   spa    = var.spa
 }
