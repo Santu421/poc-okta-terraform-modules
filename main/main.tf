@@ -3,7 +3,11 @@
 
 locals {
   # Read and parse the metadata file (shared across all modules)
-  metadata_file = file("${var.app_config_path}/${basename(var.app_config_path)}-metadata.yaml")
+  # Metadata file is at app level: apps/DIV1/TEST/TEST-metadata.yaml
+  # From terraform modules dir, the path is: ../poc-okta-terraform-configs/apps/DIV1/TEST/TEST-metadata.yaml
+  app_path = dirname(var.app_config_path)
+  app_name = basename(dirname(var.app_config_path))
+  metadata_file = file("../poc-okta-terraform-configs/${local.app_path}/${local.app_name}-metadata.yaml")
   metadata      = yamldecode(local.metadata_file)
   
   # Common profile for all modules
@@ -16,7 +20,8 @@ locals {
   })
   
   # Read and parse the environment-specific config file
-  env_config_file = file("${var.app_config_path}/${var.environment}/${local.metadata.cmdb_app_short_name}-${var.environment}.yaml")
+  # Environment config is at: apps/DIV1/TEST/dev/TEST-dev.yaml
+  env_config_file = file("../poc-okta-terraform-configs/${var.app_config_path}/${local.metadata.cmdb_app_short_name}-${var.environment}.yaml")
   env_config      = yamldecode(local.env_config_file)
   
   # Extract environment config values
@@ -33,49 +38,49 @@ module "oauth_2leg" {
   count  = var.oauth2 != null ? 1 : 0
   source = "../modules/oauth_2leg"
   
-  app_label = var.oauth2.label
-  token_endpoint_auth_method = var.oauth2.token_endpoint_auth_method
-  omit_secret = var.oauth2.omit_secret
-  auto_key_rotation = var.oauth2.auto_key_rotation
-  auto_submit_toolbar = var.oauth2.auto_submit_toolbar
-  hide_ios = var.oauth2.hide_ios
-  hide_web = var.oauth2.hide_web
-  issuer_mode = var.oauth2.issuer_mode
-  consent_method = var.oauth2.consent_method
-  login_mode = var.oauth2.login_mode
-  status = var.oauth2.status
-  client_basic_secret = var.oauth2.client_basic_secret
+  app_label = var.oauth2.app.label
+  token_endpoint_auth_method = var.oauth2.app.token_endpoint_auth_method
+  omit_secret = var.oauth2.app.omit_secret
+  auto_key_rotation = var.oauth2.app.auto_key_rotation
+  auto_submit_toolbar = var.oauth2.app.auto_submit_toolbar
+  hide_ios = var.oauth2.app.hide_ios
+  hide_web = var.oauth2.app.hide_web
+  issuer_mode = var.oauth2.app.issuer_mode
+  consent_method = var.oauth2.app.consent_method
+  login_mode = var.oauth2.app.login_mode
+  status = var.oauth2.app.status
+  client_basic_secret = var.oauth2.app.client_basic_secret
   profile = local.common_profile
   
   # Additional optional variables
-  accessibility_error_redirect_url = var.oauth2.accessibility_error_redirect_url
-  accessibility_login_redirect_url = var.oauth2.accessibility_login_redirect_url
-  accessibility_self_service = var.oauth2.accessibility_self_service
-  admin_note = var.oauth2.admin_note
-  enduser_note = var.oauth2.enduser_note
-  app_links_json = var.oauth2.app_links_json
-  app_settings_json = var.oauth2.app_settings_json
-  authentication_policy = var.oauth2.authentication_policy
-  client_id = var.oauth2.client_id
-  client_uri = var.oauth2.client_uri
-  implicit_assignment = var.oauth2.implicit_assignment
-  jwks_uri = var.oauth2.jwks_uri
-  login_scopes = var.oauth2.login_scopes
-  login_uri = var.oauth2.login_uri
-  logo = var.oauth2.logo
-  logo_uri = var.oauth2.logo_uri
-  pkce_required = var.oauth2.pkce_required
-  policy_uri = var.oauth2.policy_uri
-  post_logout_redirect_uris = var.oauth2.post_logout_redirect_uris
-  redirect_uris = var.oauth2.redirect_uris
-  refresh_token_leeway = var.oauth2.refresh_token_leeway
-  refresh_token_rotation = var.oauth2.refresh_token_rotation
-  tos_uri = var.oauth2.tos_uri
-  user_name_template = var.oauth2.user_name_template
-  user_name_template_push_status = var.oauth2.user_name_template_push_status
-  user_name_template_suffix = var.oauth2.user_name_template_suffix
-  user_name_template_type = var.oauth2.user_name_template_type
-  wildcard_redirect = var.oauth2.wildcard_redirect
+  accessibility_error_redirect_url = var.oauth2.app.accessibility_error_redirect_url
+  accessibility_login_redirect_url = var.oauth2.app.accessibility_login_redirect_url
+  accessibility_self_service = var.oauth2.app.accessibility_self_service
+  admin_note = var.oauth2.app.admin_note
+  enduser_note = var.oauth2.app.enduser_note
+  app_links_json = var.oauth2.app.app_links_json
+  app_settings_json = var.oauth2.app.app_settings_json
+  authentication_policy = var.oauth2.app.authentication_policy
+  client_id = var.oauth2.app.client_id
+  client_uri = var.oauth2.app.client_uri
+  implicit_assignment = var.oauth2.app.implicit_assignment
+  jwks_uri = var.oauth2.app.jwks_uri
+  login_scopes = var.oauth2.app.login_scopes
+  login_uri = var.oauth2.app.login_uri
+  logo = var.oauth2.app.logo
+  logo_uri = var.oauth2.app.logo_uri
+  pkce_required = var.oauth2.app.pkce_required
+  policy_uri = var.oauth2.app.policy_uri
+  post_logout_redirect_uris = var.oauth2.app.post_logout_redirect_uris
+  redirect_uris = var.oauth2.app.redirect_uris
+  refresh_token_leeway = var.oauth2.app.refresh_token_leeway
+  refresh_token_rotation = var.oauth2.app.refresh_token_rotation
+  tos_uri = var.oauth2.app.tos_uri
+  user_name_template = var.oauth2.app.user_name_template
+  user_name_template_push_status = var.oauth2.app.user_name_template_push_status
+  user_name_template_suffix = var.oauth2.app.user_name_template_suffix
+  user_name_template_type = var.oauth2.app.user_name_template_type
+  wildcard_redirect = var.oauth2.app.wildcard_redirect
 }
 
 # Create 3-leg frontend OAuth app if spa object is provided
@@ -83,68 +88,68 @@ module "oauth_3leg_frontend" {
   count  = var.spa != null ? 1 : 0
   source = "../modules/spa_oidc"
   
-  app_label = var.spa.label
+  app_label = var.spa.app.label
   profile = local.common_profile
   
   # OAuth App variables
-  token_endpoint_auth_method = var.spa.token_endpoint_auth_method
-  omit_secret = var.spa.omit_secret
-  auto_key_rotation = var.spa.auto_key_rotation
-  auto_submit_toolbar = var.spa.auto_submit_toolbar
-  hide_ios = var.spa.hide_ios
-  hide_web = var.spa.hide_web
-  issuer_mode = var.spa.issuer_mode
-  consent_method = var.spa.consent_method
-  login_mode = var.spa.login_mode
-  status = var.spa.status
-  client_basic_secret = var.spa.client_basic_secret
-  client_id = var.spa.client_id
-  pkce_required = var.spa.pkce_required
-  redirect_uris = var.spa.redirect_uris
-  post_logout_redirect_uris = var.spa.post_logout_redirect_uris
+  token_endpoint_auth_method = var.spa.app.token_endpoint_auth_method
+  omit_secret = var.spa.app.omit_secret
+  auto_key_rotation = var.spa.app.auto_key_rotation
+  auto_submit_toolbar = var.spa.app.auto_submit_toolbar
+  hide_ios = var.spa.app.hide_ios
+  hide_web = var.spa.app.hide_web
+  issuer_mode = var.spa.app.issuer_mode
+  consent_method = var.spa.app.consent_method
+  login_mode = var.spa.app.login_mode
+  status = var.spa.app.status
+  client_basic_secret = var.spa.app.client_basic_secret
+  client_id = var.spa.app.client_id
+  pkce_required = var.spa.app.pkce_required
+  redirect_uris = var.spa.app.redirect_uris
+  post_logout_redirect_uris = var.spa.app.post_logout_redirect_uris
   
   # Additional optional OAuth variables
-  accessibility_error_redirect_url = var.spa.accessibility_error_redirect_url
-  accessibility_login_redirect_url = var.spa.accessibility_login_redirect_url
-  accessibility_self_service = var.spa.accessibility_self_service
-  admin_note = var.spa.admin_note
-  enduser_note = var.spa.enduser_note
-  app_links_json = var.spa.app_links_json
-  app_settings_json = var.spa.app_settings_json
-  authentication_policy = var.spa.authentication_policy
-  client_uri = var.spa.client_uri
-  implicit_assignment = var.spa.implicit_assignment
-  jwks_uri = var.spa.jwks_uri
-  login_scopes = var.spa.login_scopes
-  login_uri = var.spa.login_uri
-  logo = var.spa.logo
-  logo_uri = var.spa.logo_uri
-  policy_uri = var.spa.policy_uri
-  refresh_token_leeway = var.spa.refresh_token_leeway
-  refresh_token_rotation = var.spa.refresh_token_rotation
-  tos_uri = var.spa.tos_uri
-  user_name_template = var.spa.user_name_template
-  user_name_template_push_status = var.spa.user_name_template_push_status
-  user_name_template_suffix = var.spa.user_name_template_suffix
-  user_name_template_type = var.spa.user_name_template_type
-  wildcard_redirect = var.spa.wildcard_redirect
+  accessibility_error_redirect_url = var.spa.app.accessibility_error_redirect_url
+  accessibility_login_redirect_url = var.spa.app.accessibility_login_redirect_url
+  accessibility_self_service = var.spa.app.accessibility_self_service
+  admin_note = var.spa.app.admin_note
+  enduser_note = var.spa.app.enduser_note
+  app_links_json = var.spa.app.app_links_json
+  app_settings_json = var.spa.app.app_settings_json
+  authentication_policy = var.spa.app.authentication_policy
+  client_uri = var.spa.app.client_uri
+  implicit_assignment = var.spa.app.implicit_assignment
+  jwks_uri = var.spa.app.jwks_uri
+  login_scopes = var.spa.app.login_scopes
+  login_uri = var.spa.app.login_uri
+  logo = var.spa.app.logo
+  logo_uri = var.spa.app.logo_uri
+  policy_uri = var.spa.app.policy_uri
+  refresh_token_leeway = var.spa.app.refresh_token_leeway
+  refresh_token_rotation = var.spa.app.refresh_token_rotation
+  tos_uri = var.spa.app.tos_uri
+  user_name_template = var.spa.app.user_name_template
+  user_name_template_push_status = var.spa.app.user_name_template_push_status
+  user_name_template_suffix = var.spa.app.user_name_template_suffix
+  user_name_template_type = var.spa.app.user_name_template_type
+  wildcard_redirect = var.spa.app.wildcard_redirect
   
-  # Group variables
-  group_name = var.spa.group_name
-  group_description = var.spa.group_description
+  # Group variables (conditional)
+  group_name = var.spa.group != null ? var.spa.group.name : null
+  group_description = var.spa.group != null ? var.spa.group.description : null
   
-  # Trusted Origin variables
-  trusted_origin_name = var.spa.trusted_origin_name
-  trusted_origin_url = var.spa.trusted_origin_url
-  trusted_origin_scopes = var.spa.trusted_origin_scopes
+  # Trusted Origin variables (conditional)
+  trusted_origin_name = var.spa.trusted_origin != null ? var.spa.trusted_origin.name : null
+  trusted_origin_url = var.spa.trusted_origin != null ? var.spa.trusted_origin.url : null
+  trusted_origin_scopes = var.spa.trusted_origin != null ? var.spa.trusted_origin.scopes : null
   
-  # Bookmark variables
-  bookmark_label = var.spa.bookmark_label
-  bookmark_url = var.spa.bookmark_url
-  bookmark_status = var.spa.bookmark_status
-  bookmark_auto_submit_toolbar = var.spa.bookmark_auto_submit_toolbar
-  bookmark_hide_ios = var.spa.bookmark_hide_ios
-  bookmark_hide_web = var.spa.bookmark_hide_web
+  # Bookmark variables (conditional)
+  bookmark_label = var.spa.bookmark != null ? var.spa.bookmark.label : null
+  bookmark_url = var.spa.bookmark != null ? var.spa.bookmark.url : null
+  bookmark_status = var.spa.bookmark != null ? var.spa.bookmark.status : null
+  bookmark_auto_submit_toolbar = var.spa.bookmark != null ? var.spa.bookmark.auto_submit_toolbar : null
+  bookmark_hide_ios = var.spa.bookmark != null ? var.spa.bookmark.hide_ios : null
+  bookmark_hide_web = var.spa.bookmark != null ? var.spa.bookmark.hide_web : null
 }
 
 # Create 3-leg backend OAuth app if web object is provided
@@ -152,68 +157,68 @@ module "oauth_3leg_backend" {
   count  = var.web != null ? 1 : 0
   source = "../modules/web_oidc"
   
-  app_label = var.web.label
+  app_label = var.web.app.label
   profile = local.common_profile
   
   # OAuth App variables
-  token_endpoint_auth_method = var.web.token_endpoint_auth_method
-  omit_secret = var.web.omit_secret
-  auto_key_rotation = var.web.auto_key_rotation
-  auto_submit_toolbar = var.web.auto_submit_toolbar
-  hide_ios = var.web.hide_ios
-  hide_web = var.web.hide_web
-  issuer_mode = var.web.issuer_mode
-  consent_method = var.web.consent_method
-  login_mode = var.web.login_mode
-  status = var.web.status
-  client_basic_secret = var.web.client_basic_secret
-  client_id = var.web.client_id
-  pkce_required = var.web.pkce_required
-  redirect_uris = var.web.redirect_uris
-  post_logout_redirect_uris = var.web.post_logout_redirect_uris
+  token_endpoint_auth_method = var.web.app.token_endpoint_auth_method
+  omit_secret = var.web.app.omit_secret
+  auto_key_rotation = var.web.app.auto_key_rotation
+  auto_submit_toolbar = var.web.app.auto_submit_toolbar
+  hide_ios = var.web.app.hide_ios
+  hide_web = var.web.app.hide_web
+  issuer_mode = var.web.app.issuer_mode
+  consent_method = var.web.app.consent_method
+  login_mode = var.web.app.login_mode
+  status = var.web.app.status
+  client_basic_secret = var.web.app.client_basic_secret
+  client_id = var.web.app.client_id
+  pkce_required = var.web.app.pkce_required
+  redirect_uris = var.web.app.redirect_uris
+  post_logout_redirect_uris = var.web.app.post_logout_redirect_uris
   
   # Additional optional OAuth variables
-  accessibility_error_redirect_url = var.web.accessibility_error_redirect_url
-  accessibility_login_redirect_url = var.web.accessibility_login_redirect_url
-  accessibility_self_service = var.web.accessibility_self_service
-  admin_note = var.web.admin_note
-  enduser_note = var.web.enduser_note
-  app_links_json = var.web.app_links_json
-  app_settings_json = var.web.app_settings_json
-  authentication_policy = var.web.authentication_policy
-  client_uri = var.web.client_uri
-  implicit_assignment = var.web.implicit_assignment
-  jwks_uri = var.web.jwks_uri
-  login_scopes = var.web.login_scopes
-  login_uri = var.web.login_uri
-  logo = var.web.logo
-  logo_uri = var.web.logo_uri
-  policy_uri = var.web.policy_uri
-  refresh_token_leeway = var.web.refresh_token_leeway
-  refresh_token_rotation = var.web.refresh_token_rotation
-  tos_uri = var.web.tos_uri
-  user_name_template = var.web.user_name_template
-  user_name_template_push_status = var.web.user_name_template_push_status
-  user_name_template_suffix = var.web.user_name_template_suffix
-  user_name_template_type = var.web.user_name_template_type
-  wildcard_redirect = var.web.wildcard_redirect
+  accessibility_error_redirect_url = var.web.app.accessibility_error_redirect_url
+  accessibility_login_redirect_url = var.web.app.accessibility_login_redirect_url
+  accessibility_self_service = var.web.app.accessibility_self_service
+  admin_note = var.web.app.admin_note
+  enduser_note = var.web.app.enduser_note
+  app_links_json = var.web.app.app_links_json
+  app_settings_json = var.web.app.app_settings_json
+  authentication_policy = var.web.app.authentication_policy
+  client_uri = var.web.app.client_uri
+  implicit_assignment = var.web.app.implicit_assignment
+  jwks_uri = var.web.app.jwks_uri
+  login_scopes = var.web.app.login_scopes
+  login_uri = var.web.app.login_uri
+  logo = var.web.app.logo
+  logo_uri = var.web.app.logo_uri
+  policy_uri = var.web.app.policy_uri
+  refresh_token_leeway = var.web.app.refresh_token_leeway
+  refresh_token_rotation = var.web.app.refresh_token_rotation
+  tos_uri = var.web.app.tos_uri
+  user_name_template = var.web.app.user_name_template
+  user_name_template_push_status = var.web.app.user_name_template_push_status
+  user_name_template_suffix = var.web.app.user_name_template_suffix
+  user_name_template_type = var.web.app.user_name_template_type
+  wildcard_redirect = var.web.app.wildcard_redirect
   
-  # Group variables
-  group_name = var.web.group_name
-  group_description = var.web.group_description
+  # Group variables (conditional)
+  group_name = var.web.group != null ? var.web.group.name : null
+  group_description = var.web.group != null ? var.web.group.description : null
   
-  # Trusted Origin variables
-  trusted_origin_name = var.web.trusted_origin_name
-  trusted_origin_url = var.web.trusted_origin_url
-  trusted_origin_scopes = var.web.trusted_origin_scopes
+  # Trusted Origin variables (conditional)
+  trusted_origin_name = var.web.trusted_origin != null ? var.web.trusted_origin.name : null
+  trusted_origin_url = var.web.trusted_origin != null ? var.web.trusted_origin.url : null
+  trusted_origin_scopes = var.web.trusted_origin != null ? var.web.trusted_origin.scopes : null
   
-  # Bookmark variables
-  bookmark_label = var.web.bookmark_label
-  bookmark_url = var.web.bookmark_url
-  bookmark_status = var.web.bookmark_status
-  bookmark_auto_submit_toolbar = var.web.bookmark_auto_submit_toolbar
-  bookmark_hide_ios = var.web.bookmark_hide_ios
-  bookmark_hide_web = var.web.bookmark_hide_web
+  # Bookmark variables (conditional)
+  bookmark_label = var.web.bookmark != null ? var.web.bookmark.label : null
+  bookmark_url = var.web.bookmark != null ? var.web.bookmark.url : null
+  bookmark_status = var.web.bookmark != null ? var.web.bookmark.status : null
+  bookmark_auto_submit_toolbar = var.web.bookmark != null ? var.web.bookmark.auto_submit_toolbar : null
+  bookmark_hide_ios = var.web.bookmark != null ? var.web.bookmark.hide_ios : null
+  bookmark_hide_web = var.web.bookmark != null ? var.web.bookmark.hide_web : null
 }
 
 # Create 3-leg native OAuth app if na object is provided
@@ -221,66 +226,66 @@ module "oauth_3leg_native" {
   count  = var.na != null ? 1 : 0
   source = "../modules/na_oidc"
   
-  app_label = var.na.label
+  app_label = var.na.app.label
   profile = local.common_profile
   
   # OAuth App variables
-  token_endpoint_auth_method = var.na.token_endpoint_auth_method
-  omit_secret = var.na.omit_secret
-  auto_key_rotation = var.na.auto_key_rotation
-  auto_submit_toolbar = var.na.auto_submit_toolbar
-  hide_ios = var.na.hide_ios
-  hide_web = var.na.hide_web
-  issuer_mode = var.na.issuer_mode
-  consent_method = var.na.consent_method
-  login_mode = var.na.login_mode
-  status = var.na.status
-  client_basic_secret = var.na.client_basic_secret
-  client_id = var.na.client_id
-  pkce_required = var.na.pkce_required
-  redirect_uris = var.na.redirect_uris
-  post_logout_redirect_uris = var.na.post_logout_redirect_uris
+  token_endpoint_auth_method = var.na.app.token_endpoint_auth_method
+  omit_secret = var.na.app.omit_secret
+  auto_key_rotation = var.na.app.auto_key_rotation
+  auto_submit_toolbar = var.na.app.auto_submit_toolbar
+  hide_ios = var.na.app.hide_ios
+  hide_web = var.na.app.hide_web
+  issuer_mode = var.na.app.issuer_mode
+  consent_method = var.na.app.consent_method
+  login_mode = var.na.app.login_mode
+  status = var.na.app.status
+  client_basic_secret = var.na.app.client_basic_secret
+  client_id = var.na.app.client_id
+  pkce_required = var.na.app.pkce_required
+  redirect_uris = var.na.app.redirect_uris
+  post_logout_redirect_uris = var.na.app.post_logout_redirect_uris
   
   # Additional optional OAuth variables
-  accessibility_error_redirect_url = var.na.accessibility_error_redirect_url
-  accessibility_login_redirect_url = var.na.accessibility_login_redirect_url
-  accessibility_self_service = var.na.accessibility_self_service
-  admin_note = var.na.admin_note
-  enduser_note = var.na.enduser_note
-  app_links_json = var.na.app_links_json
-  app_settings_json = var.na.app_settings_json
-  authentication_policy = var.na.authentication_policy
-  client_uri = var.na.client_uri
-  implicit_assignment = var.na.implicit_assignment
-  jwks_uri = var.na.jwks_uri
-  login_scopes = var.na.login_scopes
-  login_uri = var.na.login_uri
-  logo = var.na.logo
-  logo_uri = var.na.logo_uri
-  policy_uri = var.na.policy_uri
-  refresh_token_leeway = var.na.refresh_token_leeway
-  refresh_token_rotation = var.na.refresh_token_rotation
-  tos_uri = var.na.tos_uri
-  user_name_template = var.na.user_name_template
-  user_name_template_push_status = var.na.user_name_template_push_status
-  user_name_template_suffix = var.na.user_name_template_suffix
-  user_name_template_type = var.na.user_name_template_type
-  wildcard_redirect = var.na.wildcard_redirect
+  accessibility_error_redirect_url = var.na.app.accessibility_error_redirect_url
+  accessibility_login_redirect_url = var.na.app.accessibility_login_redirect_url
+  accessibility_self_service = var.na.app.accessibility_self_service
+  admin_note = var.na.app.admin_note
+  enduser_note = var.na.app.enduser_note
+  app_links_json = var.na.app.app_links_json
+  app_settings_json = var.na.app.app_settings_json
+  authentication_policy = var.na.app.authentication_policy
+  client_uri = var.na.app.client_uri
+  implicit_assignment = var.na.app.implicit_assignment
+  jwks_uri = var.na.app.jwks_uri
+  login_scopes = var.na.app.login_scopes
+  login_uri = var.na.app.login_uri
+  logo = var.na.app.logo
+  logo_uri = var.na.app.logo_uri
+  policy_uri = var.na.app.policy_uri
+  refresh_token_leeway = var.na.app.refresh_token_leeway
+  refresh_token_rotation = var.na.app.refresh_token_rotation
+  tos_uri = var.na.app.tos_uri
+  user_name_template = var.na.app.user_name_template
+  user_name_template_push_status = var.na.app.user_name_template_push_status
+  user_name_template_suffix = var.na.app.user_name_template_suffix
+  user_name_template_type = var.na.app.user_name_template_type
+  wildcard_redirect = var.na.app.wildcard_redirect
   
-  # Group variables
-  group_name = var.na.group_name
-  group_description = var.na.group_description
+  # Group variables (conditional)
+  group_name = var.na.group != null ? var.na.group.name : null
+  group_description = var.na.group != null ? var.na.group.description : null
   
-  # Trusted Origin variables
-  trusted_origin_name = var.na.trusted_origin_name
-  trusted_origin_url = var.na.trusted_origin_url
-  trusted_origin_scopes = var.na.trusted_origin_scopes
+  # Trusted Origin variables (conditional)
+  trusted_origin_name = var.na.trusted_origin != null ? var.na.trusted_origin.name : null
+  trusted_origin_url = var.na.trusted_origin != null ? var.na.trusted_origin.url : null
+  trusted_origin_scopes = var.na.trusted_origin != null ? var.na.trusted_origin.scopes : null
   
-  # Bookmark variables
-  bookmark_label = var.na.bookmark_label
-  bookmark_url = var.na.bookmark_url
-  bookmark_status = var.na.bookmark_status
-  bookmark_auto_submit_toolbar = var.na.bookmark_auto_submit_toolbar
-  bookmark_hide_ios = var.na.bookmark_hide_ios
-  bookmark_hide_web = var.na.bookmark_hide_web
+  # Bookmark variables (conditional)
+  bookmark_label = var.na.bookmark != null ? var.na.bookmark.label : null
+  bookmark_url = var.na.bookmark != null ? var.na.bookmark.url : null
+  bookmark_status = var.na.bookmark != null ? var.na.bookmark.status : null
+  bookmark_auto_submit_toolbar = var.na.bookmark != null ? var.na.bookmark.auto_submit_toolbar : null
+  bookmark_hide_ios = var.na.bookmark != null ? var.na.bookmark.hide_ios : null
+  bookmark_hide_web = var.na.bookmark != null ? var.na.bookmark.hide_web : null
 } 
