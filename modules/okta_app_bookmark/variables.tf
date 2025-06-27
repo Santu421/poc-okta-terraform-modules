@@ -7,11 +7,25 @@ variable "bookmark" {
     status = optional(string, "ACTIVE")
     
     # Optional attributes
-    auto_submit_toolbar = optional(bool)
-    hide_ios           = optional(bool)
-    hide_web           = optional(bool)
-    logo_url           = optional(string)
-    request_integration = optional(bool)
+    accessibility_error_redirect_url = optional(string)
+    accessibility_login_redirect_url = optional(string)
+    accessibility_self_service       = optional(bool, false)
+    admin_note                       = optional(string)
+    app_links_json                   = optional(string)
+    authentication_policy            = optional(string)
+    auto_submit_toolbar              = optional(bool)
+    enduser_note                     = optional(string)
+    hide_ios                         = optional(bool)
+    hide_web                         = optional(bool)
+    logo                             = optional(string)
+    request_integration              = optional(bool)
+    
+    # Timeouts block
+    timeouts = optional(object({
+      create = optional(string)
+      read   = optional(string)
+      update = optional(string)
+    }))
   })
   
   validation {
