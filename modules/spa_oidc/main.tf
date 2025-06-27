@@ -81,6 +81,7 @@ resource "okta_trusted_origin" "spa_oidc_origin" {
 
 # Bookmark App (optional - for admin access)
 resource "okta_app_bookmark" "spa_oidc_bookmark" {
+  count                = var.bookmark_label != null ? 1 : 0
   label                = var.bookmark_label
   url                  = var.bookmark_url
   status               = var.bookmark_status

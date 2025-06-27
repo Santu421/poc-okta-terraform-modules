@@ -19,6 +19,8 @@ module "main" {
   # Pass through the configuration objects
   oauth2 = var.oauth2
   spa    = var.spa
+  na     = var.na
+  web    = var.web
 }
 
 # (Removed module "okta_apps" block as it is not needed) 

@@ -28,5 +28,5 @@ output "na_oidc_trusted_origin_id" {
 
 output "na_oidc_bookmark_id" {
   description = "Native OIDC bookmark app ID"
-  value       = okta_app_bookmark.na_oidc_bookmark.id
+  value       = try(okta_app_bookmark.na_oidc_bookmark[0].id, null)
 } 

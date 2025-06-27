@@ -28,5 +28,5 @@ output "spa_oidc_trusted_origin_id" {
 
 output "spa_oidc_bookmark_id" {
   description = "SPA OIDC bookmark app ID"
-  value       = okta_app_bookmark.spa_oidc_bookmark.id
+  value       = try(okta_app_bookmark.spa_oidc_bookmark[0].id, null)
 } 

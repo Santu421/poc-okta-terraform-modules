@@ -28,5 +28,5 @@ output "web_oidc_trusted_origin_id" {
 
 output "web_oidc_bookmark_id" {
   description = "Web OIDC bookmark app ID"
-  value       = okta_app_bookmark.web_oidc_bookmark.id
+  value       = try(okta_app_bookmark.web_oidc_bookmark[0].id, null)
 } 

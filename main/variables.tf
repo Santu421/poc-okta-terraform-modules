@@ -133,4 +133,138 @@ variable "spa" {
     bookmark_hide_web = optional(bool, false)
   })
   sensitive = false
+}
+
+# Native OIDC Configuration Map
+variable "na" {
+  description = "Native OIDC application configuration"
+  type = object({
+    # Required fields
+    label = string  # Required per Okta docs
+    client_id = string  # Required per Okta docs
+    
+    # Optional fields in schema order
+    type = optional(string, "native")  # Default for Native apps
+    accessibility_error_redirect_url = optional(string)
+    accessibility_login_redirect_url = optional(string)
+    accessibility_self_service = optional(bool, false)
+    admin_note = optional(string)
+    app_links_json = optional(string)
+    app_settings_json = optional(string)
+    authentication_policy = optional(string)
+    auto_key_rotation = optional(bool, true)
+    auto_submit_toolbar = optional(bool, false)
+    client_basic_secret = optional(string)
+    client_uri = optional(string)
+    consent_method = optional(string, "TRUSTED")
+    enduser_note = optional(string)
+    grant_types = optional(set(string), ["password", "refresh_token", "authorization_code"])  # Default for Native
+    hide_ios = optional(bool, false)
+    hide_web = optional(bool, false)
+    implicit_assignment = optional(bool)
+    issuer_mode = optional(string, "ORG_URL")
+    jwks_uri = optional(string)
+    login_mode = optional(string, "DISABLED")
+    login_scopes = optional(set(string))
+    login_uri = optional(string)
+    logo = optional(string)
+    logo_uri = optional(string)
+    omit_secret = optional(bool, true)
+    pkce_required = optional(bool, true)  # Required for Native apps
+    policy_uri = optional(string)
+    post_logout_redirect_uris = optional(set(string))
+    redirect_uris = optional(list(string))
+    refresh_token_leeway = optional(number)
+    refresh_token_rotation = optional(string)
+    response_types = optional(set(string), ["code"])  # Default for Native
+    status = optional(string, "ACTIVE")
+    token_endpoint_auth_method = optional(string, "client_secret_basic")
+    tos_uri = optional(string)
+    user_name_template = optional(string)
+    user_name_template_push_status = optional(string)
+    user_name_template_suffix = optional(string)
+    user_name_template_type = optional(string, "BUILT_IN")
+    wildcard_redirect = optional(string)
+    
+    # Additional Native-specific variables
+    group_name = optional(string)
+    group_description = optional(string)
+    trusted_origin_name = optional(string)
+    trusted_origin_url = optional(string)
+    trusted_origin_scopes = optional(list(string), ["CORS", "REDIRECT"])
+    bookmark_label = optional(string)
+    bookmark_url = optional(string)
+    bookmark_status = optional(string, "ACTIVE")
+    bookmark_auto_submit_toolbar = optional(bool, false)
+    bookmark_hide_ios = optional(bool, false)
+    bookmark_hide_web = optional(bool, false)
+  })
+  sensitive = false
+}
+
+# Web OIDC Configuration Map
+variable "web" {
+  description = "Web OIDC application configuration"
+  type = object({
+    # Required fields
+    label = string  # Required per Okta docs
+    client_id = string  # Required per Okta docs
+    
+    # Optional fields in schema order
+    type = optional(string, "web")  # Default for Web apps
+    accessibility_error_redirect_url = optional(string)
+    accessibility_login_redirect_url = optional(string)
+    accessibility_self_service = optional(bool, false)
+    admin_note = optional(string)
+    app_links_json = optional(string)
+    app_settings_json = optional(string)
+    authentication_policy = optional(string)
+    auto_key_rotation = optional(bool, true)
+    auto_submit_toolbar = optional(bool, false)
+    client_basic_secret = optional(string)
+    client_uri = optional(string)
+    consent_method = optional(string, "TRUSTED")
+    enduser_note = optional(string)
+    grant_types = optional(set(string), ["authorization_code", "refresh_token", "client_credentials"])  # Default for Web
+    hide_ios = optional(bool, false)
+    hide_web = optional(bool, false)
+    implicit_assignment = optional(bool)
+    issuer_mode = optional(string, "ORG_URL")
+    jwks_uri = optional(string)
+    login_mode = optional(string, "DISABLED")
+    login_scopes = optional(set(string))
+    login_uri = optional(string)
+    logo = optional(string)
+    logo_uri = optional(string)
+    omit_secret = optional(bool, true)
+    pkce_required = optional(bool, true)  # Required for Web apps
+    policy_uri = optional(string)
+    post_logout_redirect_uris = optional(set(string))
+    redirect_uris = optional(list(string))
+    refresh_token_leeway = optional(number)
+    refresh_token_rotation = optional(string)
+    response_types = optional(set(string), ["code"])  # Default for Web
+    status = optional(string, "ACTIVE")
+    token_endpoint_auth_method = optional(string, "client_secret_basic")
+    tos_uri = optional(string)
+    user_name_template = optional(string)
+    user_name_template_push_status = optional(string)
+    user_name_template_suffix = optional(string)
+    user_name_template_type = optional(string, "BUILT_IN")
+    wildcard_redirect = optional(string)
+    
+    # Additional Web-specific variables
+    group_name = optional(string)
+    group_description = optional(string)
+    trusted_origin_name = optional(string)
+    trusted_origin_url = optional(string)
+    trusted_origin_scopes = optional(list(string), ["CORS", "REDIRECT"])
+    bookmark_label = optional(string)
+    bookmark_url = optional(string)
+    bookmark_status = optional(string, "ACTIVE")
+    bookmark_auto_submit_toolbar = optional(bool, false)
+    bookmark_hide_ios = optional(bool, false)
+    bookmark_hide_web = optional(bool, false)
+  })
+  sensitive = false
 } 
