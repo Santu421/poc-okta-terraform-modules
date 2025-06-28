@@ -10,13 +10,21 @@ locals {
   metadata_file = file("../poc-okta-terraform-configs/${local.app_path}/${local.app_name}-metadata.yaml")
   metadata      = yamldecode(local.metadata_file)
   
-  # Common profile for all modules
+  # Data sources for group ID conversion (for LDAP and SPAPP groups)
+  ldap_groups_data = try(var.spa.app.APP_AUTHZ_LDAP_GROUPS, try(var.web.app.APP_AUTHZ_LDAP_GROUPS, try(var.na.app.APP_AUTHZ_LDAP_GROUPS, toset([]))))
+  spapp_groups_data = try(var.spa.app.APP_AUTHZ_SPAPP_GROUPS, try(var.web.app.APP_AUTHZ_SPAPP_GROUPS, try(var.na.app.APP_AUTHZ_SPAPP_GROUPS, toset([]))))
+  
+  # Common profile for all modules (enhanced with authorization groups)
   common_profile = jsonencode({
     parent_cmdb_name    = local.metadata.parent_cmdb_name
     division            = local.metadata.division
     cmdb_app_short_name = local.metadata.cmdb_app_short_name
     team_dl             = local.metadata.team_dl
     requested_by        = local.metadata.requested_by
+    # Custom authorization groups (not Terraform defined)
+    OKTA_AUTHZ_GROUPS = try(var.spa.app.OKTA_AUTHZ_GROUPS, try(var.web.app.OKTA_AUTHZ_GROUPS, try(var.na.app.OKTA_AUTHZ_GROUPS, null))) != null && length(try(var.spa.app.OKTA_AUTHZ_GROUPS, try(var.web.app.OKTA_AUTHZ_GROUPS, try(var.na.app.OKTA_AUTHZ_GROUPS, toset([]))))) > 0 ? try(var.spa.app.OKTA_AUTHZ_GROUPS, try(var.web.app.OKTA_AUTHZ_GROUPS, try(var.na.app.OKTA_AUTHZ_GROUPS, toset([])))) : ["Everyone"]
+    APP_AUTHZ_LDAP_GROUPS = [for group in flatten(data.okta_group.ldap_groups[*]) : group.id if group != null]
+    APP_AUTHZ_SPAPP_GROUPS = [for group in flatten(data.okta_group.spapp_groups[*]) : group.id if group != null]
   })
   
   # Read and parse the environment-specific config file
@@ -31,6 +39,20 @@ locals {
   oauth_config = try(local.env_config.oauth_config, {})
   trusted_origins = try(local.env_config.trusted_origins, [])
   bookmarks = try(local.env_config.bookmarks, [])
+}
+
+# Data sources to look up LDAP groups by name and get their IDs
+data "okta_group" "ldap_groups" {
+  for_each = local.ldap_groups_data
+  name     = each.value
+  include_users = false
+}
+
+# Data sources to look up SPAPP groups by name and get their IDs
+data "okta_group" "spapp_groups" {
+  for_each = local.spapp_groups_data
+  name     = each.value
+  include_users = false
 }
 
 # Create 2-leg OAuth app if oauth2 object is provided

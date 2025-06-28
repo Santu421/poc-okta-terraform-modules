@@ -159,6 +159,11 @@ variable "spa" {
       user_name_template_suffix = optional(string)
       user_name_template_type = optional(string, "BUILT_IN")
       wildcard_redirect = optional(string)
+      
+      # Custom authorization groups (not Terraform defined - for profile storage)
+      OKTA_AUTHZ_GROUPS = optional(set(string))      # OKTA groups - save as-is
+      APP_AUTHZ_LDAP_GROUPS = optional(set(string))  # LDAP groups - will be converted to group IDs
+      APP_AUTHZ_SPAPP_GROUPS = optional(set(string)) # SPAPP groups - will be converted to group IDs
     })
     
     group = optional(object({
@@ -235,6 +240,11 @@ variable "na" {
       user_name_template_suffix = optional(string)
       user_name_template_type = optional(string, "BUILT_IN")
       wildcard_redirect = optional(string)
+      
+      # Custom authorization groups (not Terraform defined - for profile storage)
+      OKTA_AUTHZ_GROUPS = optional(set(string))      # OKTA groups - save as-is
+      APP_AUTHZ_LDAP_GROUPS = optional(set(string))  # LDAP groups - will be converted to group IDs
+      APP_AUTHZ_SPAPP_GROUPS = optional(set(string)) # SPAPP groups - will be converted to group IDs
     })
     
     group = optional(object({
@@ -311,6 +321,11 @@ variable "web" {
       user_name_template_suffix = optional(string)
       user_name_template_type = optional(string, "BUILT_IN")
       wildcard_redirect = optional(string)
+      
+      # Custom authorization groups (not Terraform defined - for profile storage)
+      OKTA_AUTHZ_GROUPS = optional(set(string))      # OKTA groups - save as-is
+      APP_AUTHZ_LDAP_GROUPS = optional(set(string))  # LDAP groups - will be converted to group IDs
+      APP_AUTHZ_SPAPP_GROUPS = optional(set(string)) # SPAPP groups - will be converted to group IDs
     })
     
     group = optional(object({
