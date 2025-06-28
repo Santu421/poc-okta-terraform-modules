@@ -307,4 +307,55 @@ See the `poc-okta-terraform-configs` repository for complete examples:
 
 ## 🔗 Related Repositories
 
-- [poc-okta-terraform-configs](https://github.com/Santu421/poc-okta-terraform-configs) - Application configurations and metadata 
+- [poc-okta-terraform-configs](https://github.com/Santu421/poc-okta-terraform-configs) - Application configurations and metadata
+
+## 🚀 Quick Commands Reference
+
+### Testing Bookmark Module with Optional Parameters
+
+#### Plan Command
+```bash
+cd /Users/aadyasri/okta-tf-resources/poc-okta-terraform-modules
+terraform plan \
+  -var-file=vars/dev.tfvars \
+  -var-file=../poc-okta-terraform-configs/apps/DIV1/TEST/dev/3leg-native.tfvars
+```
+
+#### Apply Command
+```bash
+cd /Users/aadyasri/okta-tf-resources/poc-okta-terraform-modules
+terraform apply \
+  -var-file=vars/dev.tfvars \
+  -var-file=../poc-okta-terraform-configs/apps/DIV1/TEST/dev/3leg-native.tfvars
+```
+
+#### Destroy Command
+```bash
+cd /Users/aadyasri/okta-tf-resources/poc-okta-terraform-modules
+terraform destroy \
+  -var-file=vars/dev.tfvars \
+  -var-file=../poc-okta-terraform-configs/apps/DIV1/TEST/dev/3leg-native.tfvars
+```
+
+#### Complete Deployment (All App Types)
+```bash
+cd /Users/aadyasri/okta-tf-resources/poc-okta-terraform-modules
+terraform apply \
+  -var-file=../poc-okta-terraform-configs/apps/DIV1/TEST/dev/2leg-api.tfvars \
+  -var-file=../poc-okta-terraform-configs/apps/DIV1/TEST/dev/3leg-spa.tfvars \
+  -var-file=../poc-okta-terraform-configs/apps/DIV1/TEST/dev/3leg-web.tfvars \
+  -var-file=../poc-okta-terraform-configs/apps/DIV1/TEST/dev/3leg-native.tfvars \
+  -var-file=vars/dev.tfvars
+```
+
+#### Cleanup State Files
+```bash
+cd /Users/aadyasri/okta-tf-resources/poc-okta-terraform-modules
+rm -f terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl
+```
+
+### Notes
+- The `vars/dev.tfvars` file contains provider configuration (org name, base URL, etc.)
+- The app-specific `.tfvars` files are in the configs repository
+- Always run from the `poc-okta-terraform-modules` directory
+- Use `-auto-approve` flag to skip confirmation prompts in CI/CD 
