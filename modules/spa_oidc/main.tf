@@ -4,6 +4,10 @@ terraform {
       source  = "okta/okta"
       version = "4.20.0"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.9.1"
+    }
   }
 }
 
@@ -60,16 +64,34 @@ resource "okta_app_oauth" "spa_oidc" {
   wildcard_redirect                    = try(var.wildcard_redirect, null)
 }
 
-# Group for SPA access
-resource "okta_group" "spa_oidc_group" {
-  name        = var.group_name
-  description = var.group_description
+# Wait for Okta app to be fully provisioned before group assignment
+resource "time_sleep" "wait_for_okta_app" {
+  depends_on = [okta_app_oauth.spa_oidc]
+  create_duration = "30s"
 }
 
-# App-Group Assignment
-resource "okta_app_group_assignment" "spa_oidc_assignment" {
+# Data source to get authorization groups (use Everyone if empty)
+locals {
+  # Parse the profile to get OKTA_AUTHZ_GROUPS
+  profile_data = jsondecode(var.profile)
+  authz_groups = try(local.profile_data.OKTA_AUTHZ_GROUPS, ["Everyone"])
+}
+
+# Data sources to look up authorization groups by name
+data "okta_group" "authz_groups" {
+  for_each = toset(local.authz_groups)
+  name     = each.value
+  include_users = false
+}
+
+# App-Group Assignments using authorization groups
+resource "okta_app_group_assignment" "spa_oidc_assignments" {
+  for_each = data.okta_group.authz_groups
+  
   app_id   = okta_app_oauth.spa_oidc.id
-  group_id = okta_group.spa_oidc_group.id
+  group_id = each.value.id
+  
+  depends_on = [time_sleep.wait_for_okta_app]
 }
 
 # Trusted Origin for SPA

@@ -248,32 +248,23 @@ variable "wildcard_redirect" {
   default     = null
 }
 
-# Group variables
-variable "group_name" {
-  description = "Group name for SPA access"
-  type        = string
-}
-
-variable "group_description" {
-  description = "Group description"
-  type        = string
-}
-
 # Trusted Origin variables
 variable "trusted_origin_name" {
   description = "Trusted origin name"
   type        = string
+  default     = null
 }
 
 variable "trusted_origin_url" {
   description = "Trusted origin URL"
   type        = string
+  default     = null
 }
 
 variable "trusted_origin_scopes" {
   description = "Trusted origin scopes"
   type        = list(string)
-  default     = ["CORS", "REDIRECT"]
+  default     = null
 }
 
 # Bookmark variables
@@ -292,23 +283,23 @@ variable "bookmark_url" {
 variable "bookmark_status" {
   description = "Bookmark status"
   type        = string
-  default     = "ACTIVE"
+  default     = null
 }
 
 variable "bookmark_auto_submit_toolbar" {
   description = "Bookmark auto submit toolbar"
   type        = bool
-  default     = false
+  default     = null
 }
 
 variable "bookmark_hide_ios" {
   description = "Bookmark hide iOS"
   type        = bool
-  default     = false
+  default     = null
 }
 
 variable "bookmark_hide_web" {
   description = "Bookmark hide web"
   type        = bool
-  default     = false
+  default     = null
 } 

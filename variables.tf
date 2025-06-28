@@ -26,8 +26,9 @@ variable "app_config_path" {
 variable "environment" {
   description = "Environment name (dev, uat, prod)"
   type        = string
+  default     = null
   validation {
-    condition     = contains(["dev", "uat", "prod"], var.environment)
+    condition     = var.environment == null || contains(["dev", "uat", "prod"], var.environment)
     error_message = "Environment must be one of: dev, uat, prod."
   }
 }
@@ -84,11 +85,6 @@ variable "oauth2" {
       user_name_template_type = optional(string, "BUILT_IN")
       wildcard_redirect = optional(string)
     })
-    
-    group = optional(object({
-      name = string
-      description = string
-    }))
     
     trusted_origin = optional(object({
       name = string
@@ -166,11 +162,6 @@ variable "spa" {
       APP_AUTHZ_SPAPP_GROUPS = optional(set(string)) # SPAPP groups - will be converted to group IDs
     })
     
-    group = optional(object({
-      name = string
-      description = string
-    }))
-    
     trusted_origin = optional(object({
       name = string
       url = string
@@ -247,11 +238,6 @@ variable "na" {
       APP_AUTHZ_SPAPP_GROUPS = optional(set(string)) # SPAPP groups - will be converted to group IDs
     })
     
-    group = optional(object({
-      name = string
-      description = string
-    }))
-    
     trusted_origin = optional(object({
       name = string
       url = string
@@ -327,11 +313,6 @@ variable "web" {
       APP_AUTHZ_LDAP_GROUPS = optional(set(string))  # LDAP groups - will be converted to group IDs
       APP_AUTHZ_SPAPP_GROUPS = optional(set(string)) # SPAPP groups - will be converted to group IDs
     })
-    
-    group = optional(object({
-      name = string
-      description = string
-    }))
     
     trusted_origin = optional(object({
       name = string

@@ -4,6 +4,10 @@ terraform {
       source  = "okta/okta"
       version = "4.20.0"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.9.1"
+    }
   }
 }
 
@@ -14,11 +18,11 @@ resource "okta_app_oauth" "web_oidc" {
   label                                = var.app_label
   type                                 = "web"
   grant_types                          = ["authorization_code", "refresh_token", "client_credentials"]
-  redirect_uris                        = var.redirect_uris
-  post_logout_redirect_uris           = var.post_logout_uris
   response_types                       = ["code"]
   token_endpoint_auth_method          = "client_secret_basic"
-  pkce_required                        = var.pkce_required
+  
+  # Set profile with all metadata fields
+  profile = var.profile
   
   # All optional parameters from Okta provider documentation
   accessibility_error_redirect_url     = try(var.accessibility_error_redirect_url, null)
@@ -38,7 +42,7 @@ resource "okta_app_oauth" "web_oidc" {
   hide_ios                             = try(var.hide_ios, null)
   hide_web                             = try(var.hide_web, null)
   implicit_assignment                  = try(var.implicit_assignment, null)
-  issuer_mode                          = try(var.issuer_mode, null)  # Read-only — used only for output
+  issuer_mode                          = try(var.issuer_mode, null)
   jwks_uri                             = try(var.jwks_uri, null)
   login_mode                           = try(var.login_mode, null)
   login_scopes                         = try(var.login_scopes, null)
@@ -46,8 +50,10 @@ resource "okta_app_oauth" "web_oidc" {
   logo                                 = try(var.logo, null)
   logo_uri                             = try(var.logo_uri, null)
   omit_secret                          = try(var.omit_secret, null)
+  pkce_required                        = try(var.pkce_required, null)
   policy_uri                           = try(var.policy_uri, null)
-  profile                              = try(var.profile, null)
+  post_logout_redirect_uris           = try(var.post_logout_redirect_uris, null)
+  redirect_uris                        = try(var.redirect_uris, null)
   refresh_token_leeway                = try(var.refresh_token_leeway, null)
   refresh_token_rotation              = try(var.refresh_token_rotation, null)
   status                               = try(var.status, null)
@@ -59,19 +65,37 @@ resource "okta_app_oauth" "web_oidc" {
   wildcard_redirect                    = try(var.wildcard_redirect, null)
 }
 
-# Group for web app access
-resource "okta_group" "web_oidc_group" {
-  name        = var.group_name
-  description = var.group_description
+# Wait for Okta app to be fully provisioned before group assignment
+resource "time_sleep" "wait_for_okta_app" {
+  depends_on = [okta_app_oauth.web_oidc]
+  create_duration = "30s"
 }
 
-# App-Group Assignment
-resource "okta_app_group_assignment" "web_oidc_assignment" {
+# Data source to get authorization groups (use Everyone if empty)
+locals {
+  # Parse the profile to get OKTA_AUTHZ_GROUPS
+  profile_data = jsondecode(var.profile)
+  authz_groups = try(local.profile_data.OKTA_AUTHZ_GROUPS, ["Everyone"])
+}
+
+# Data sources to look up authorization groups by name
+data "okta_group" "authz_groups" {
+  for_each = toset(local.authz_groups)
+  name     = each.value
+  include_users = false
+}
+
+# App-Group Assignments using authorization groups
+resource "okta_app_group_assignment" "web_oidc_assignments" {
+  for_each = data.okta_group.authz_groups
+  
   app_id   = okta_app_oauth.web_oidc.id
-  group_id = okta_group.web_oidc_group.id
+  group_id = each.value.id
+  
+  depends_on = [time_sleep.wait_for_okta_app]
 }
 
-# Trusted Origin for web app
+# Trusted Origin for Web
 resource "okta_trusted_origin" "web_oidc_origin" {
   name   = var.trusted_origin_name
   origin = var.trusted_origin_url

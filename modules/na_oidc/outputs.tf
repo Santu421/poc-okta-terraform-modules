@@ -16,10 +16,10 @@ output "na_oidc_client_secret" {
   sensitive   = true
 }
 
-output "na_oidc_group_id" {
-  description = "Native OIDC group ID"
-  value       = okta_group.na_oidc_group.id
-}
+# output "na_oidc_group_id" {
+#   description = "Native OIDC group ID"
+#   value       = okta_group.na_oidc_group.id
+# }
 
 output "na_oidc_trusted_origin_id" {
   description = "Native OIDC trusted origin ID"

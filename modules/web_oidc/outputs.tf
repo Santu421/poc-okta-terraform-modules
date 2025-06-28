@@ -16,10 +16,10 @@ output "web_oidc_client_secret" {
   sensitive   = true
 }
 
-output "web_oidc_group_id" {
-  description = "Web OIDC group ID"
-  value       = okta_group.web_oidc_group.id
-}
+# output "web_oidc_group_id" {
+#   description = "Web OIDC group ID"
+#   value       = okta_group.web_oidc_group.id
+# }
 
 output "web_oidc_trusted_origin_id" {
   description = "Web OIDC trusted origin ID"

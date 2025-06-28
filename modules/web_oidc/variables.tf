@@ -265,77 +265,64 @@ variable "wildcard_redirect" {
   default     = null
 }
 
-# Group variables
-variable "group_name" {
-  description = "Group name for web app access"
-  type        = string
-}
-
-variable "group_description" {
-  description = "Group description"
-  type        = string
-}
-
-variable "group_type" {
-  description = "Group type"
-  type        = string
-  default     = "OKTA_GROUP"
-}
-
 # Trusted Origin variables
 variable "trusted_origin_name" {
   description = "Trusted origin name"
   type        = string
+  default     = null
 }
 
 variable "trusted_origin_url" {
   description = "Trusted origin URL"
   type        = string
+  default     = null
 }
 
 variable "trusted_origin_scopes" {
   description = "Trusted origin scopes"
   type        = list(string)
-  default     = ["CORS", "REDIRECT"]
+  default     = null
 }
 
 variable "trusted_origin_status" {
   description = "Trusted origin status"
   type        = string
-  default     = "ACTIVE"
+  default     = null
 }
 
 # Bookmark variables
 variable "bookmark_label" {
   description = "Bookmark app label"
   type        = string
+  default     = null
 }
 
 variable "bookmark_url" {
   description = "Bookmark app URL"
   type        = string
+  default     = null
 }
 
 variable "bookmark_status" {
   description = "Bookmark app status"
   type        = string
-  default     = "ACTIVE"
+  default     = null
 }
 
 variable "bookmark_auto_submit_toolbar" {
   description = "Bookmark auto submit toolbar"
   type        = bool
-  default     = false
+  default     = null
 }
 
 variable "bookmark_hide_ios" {
   description = "Bookmark hide from iOS"
   type        = bool
-  default     = false
+  default     = null
 }
 
 variable "bookmark_hide_web" {
   description = "Bookmark hide from web"
   type        = bool
-  default     = false
+  default     = null
 } 

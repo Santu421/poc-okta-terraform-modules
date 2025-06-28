@@ -2,13 +2,15 @@
 # This file orchestrates the creation of Okta resources based on YAML configurations
 
 locals {
-  # Read and parse the metadata file (shared across all modules)
-  # Metadata file is at app level: apps/DIV1/TEST/TEST-metadata.yaml
-  # From terraform modules dir, the path is: ../poc-okta-terraform-configs/apps/DIV1/TEST/TEST-metadata.yaml
-  app_path = dirname(var.app_config_path)
-  app_name = basename(dirname(var.app_config_path))
-  metadata_file = file("../poc-okta-terraform-configs/${local.app_path}/${local.app_name}-metadata.yaml")
+  # Derive app short name from the last segment of app_config_path
+  app_short_name = regex("([^/]+)$", var.app_config_path)[0]
+
+  # Metadata and environment config file names
+  metadata_file = file("../poc-okta-terraform-configs/${var.app_config_path}/${local.app_short_name}-metadata.yaml")
   metadata      = yamldecode(local.metadata_file)
+  
+  env_config_file = file("../poc-okta-terraform-configs/${var.app_config_path}/${var.environment}/${local.app_short_name}-${var.environment}.yaml")
+  env_config      = yamldecode(local.env_config_file)
   
   # Data sources for group ID conversion (for LDAP and SPAPP groups)
   ldap_groups_data = try(var.spa.app.APP_AUTHZ_LDAP_GROUPS, try(var.web.app.APP_AUTHZ_LDAP_GROUPS, try(var.na.app.APP_AUTHZ_LDAP_GROUPS, toset([]))))
@@ -23,14 +25,9 @@ locals {
     requested_by        = local.metadata.requested_by
     # Custom authorization groups (not Terraform defined)
     OKTA_AUTHZ_GROUPS = try(var.spa.app.OKTA_AUTHZ_GROUPS, try(var.web.app.OKTA_AUTHZ_GROUPS, try(var.na.app.OKTA_AUTHZ_GROUPS, null))) != null && length(try(var.spa.app.OKTA_AUTHZ_GROUPS, try(var.web.app.OKTA_AUTHZ_GROUPS, try(var.na.app.OKTA_AUTHZ_GROUPS, toset([]))))) > 0 ? try(var.spa.app.OKTA_AUTHZ_GROUPS, try(var.web.app.OKTA_AUTHZ_GROUPS, try(var.na.app.OKTA_AUTHZ_GROUPS, toset([])))) : ["Everyone"]
-    APP_AUTHZ_LDAP_GROUPS = [for group in flatten(data.okta_group.ldap_groups[*]) : group.id if group != null]
-    APP_AUTHZ_SPAPP_GROUPS = [for group in flatten(data.okta_group.spapp_groups[*]) : group.id if group != null]
+    APP_AUTHZ_LDAP_GROUPS = [for group in values(data.okta_group.ldap_groups) : group.id]
+    APP_AUTHZ_SPAPP_GROUPS = [for group in values(data.okta_group.spapp_groups) : group.id]
   })
-  
-  # Read and parse the environment-specific config file
-  # Environment config is at: apps/DIV1/TEST/dev/TEST-dev.yaml
-  env_config_file = file("../poc-okta-terraform-configs/${var.app_config_path}/${local.metadata.cmdb_app_short_name}-${var.environment}.yaml")
-  env_config      = yamldecode(local.env_config_file)
   
   # Extract environment config values
   app_config  = local.env_config.app_config
@@ -156,10 +153,6 @@ module "oauth_3leg_frontend" {
   user_name_template_type = var.spa.app.user_name_template_type
   wildcard_redirect = var.spa.app.wildcard_redirect
   
-  # Group variables (conditional)
-  group_name = var.spa.group != null ? var.spa.group.name : null
-  group_description = var.spa.group != null ? var.spa.group.description : null
-  
   # Trusted Origin variables (conditional)
   trusted_origin_name = var.spa.trusted_origin != null ? var.spa.trusted_origin.name : null
   trusted_origin_url = var.spa.trusted_origin != null ? var.spa.trusted_origin.url : null
@@ -225,10 +218,6 @@ module "oauth_3leg_backend" {
   user_name_template_type = var.web.app.user_name_template_type
   wildcard_redirect = var.web.app.wildcard_redirect
   
-  # Group variables (conditional)
-  group_name = var.web.group != null ? var.web.group.name : null
-  group_description = var.web.group != null ? var.web.group.description : null
-  
   # Trusted Origin variables (conditional)
   trusted_origin_name = var.web.trusted_origin != null ? var.web.trusted_origin.name : null
   trusted_origin_url = var.web.trusted_origin != null ? var.web.trusted_origin.url : null
@@ -293,10 +282,6 @@ module "oauth_3leg_native" {
   user_name_template_suffix = var.na.app.user_name_template_suffix
   user_name_template_type = var.na.app.user_name_template_type
   wildcard_redirect = var.na.app.wildcard_redirect
-  
-  # Group variables (conditional)
-  group_name = var.na.group != null ? var.na.group.name : null
-  group_description = var.na.group != null ? var.na.group.description : null
   
   # Trusted Origin variables (conditional)
   trusted_origin_name = var.na.trusted_origin != null ? var.na.trusted_origin.name : null

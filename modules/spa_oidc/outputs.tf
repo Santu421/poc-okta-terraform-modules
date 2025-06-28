@@ -16,10 +16,10 @@ output "spa_oidc_client_secret" {
   sensitive   = true
 }
 
-output "spa_oidc_group_id" {
-  description = "SPA OIDC group ID"
-  value       = okta_group.spa_oidc_group.id
-}
+# output "spa_oidc_group_id" {
+#   description = "SPA OIDC group ID"
+#   value       = okta_group.spa_oidc_group.id
+# }
 
 output "spa_oidc_trusted_origin_id" {
   description = "SPA OIDC trusted origin ID"

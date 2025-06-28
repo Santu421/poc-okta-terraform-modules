@@ -8,13 +8,19 @@ provider "okta" {
   api_token = var.okta_api_token
 }
 
+locals {
+  # Derive environment from app_config_path if not provided
+  # Expected path format: apps/DIV1/TEST/dev
+  environment = var.environment != null ? var.environment : element(split("/", var.app_config_path), -1)
+}
+
 # Call the main orchestration module
 module "main" {
   source = "./main"
   
   # Pass through the required variables
   app_config_path = var.app_config_path
-  environment     = var.environment
+  environment     = local.environment
   
   # Pass through the configuration objects
   oauth2 = var.oauth2
