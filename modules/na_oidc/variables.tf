@@ -1,5 +1,24 @@
 # Native OIDC Module Variables
 
+# Group Assignment Variables
+variable "okta_authz_groups" {
+  description = "OKTA authorization groups to assign to the app"
+  type        = set(string)
+  default     = ["Everyone"]
+}
+
+variable "ldap_groups_data" {
+  description = "LDAP groups data for group ID conversion"
+  type        = set(string)
+  default     = []
+}
+
+variable "spapp_groups_data" {
+  description = "SPAPP groups data for group ID conversion"
+  type        = set(string)
+  default     = []
+}
+
 variable "app_label" {
   description = "Application display label"
   type        = string

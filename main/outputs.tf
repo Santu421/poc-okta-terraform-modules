@@ -1,5 +1,38 @@
 # Main Terraform Outputs
 
+# Debug Outputs for Group Assignment Troubleshooting
+output "debug_group_assignment" {
+  description = "Debug information for group assignment troubleshooting"
+  value = {
+    spa_groups = {
+      okta_authz_groups = local.spa_okta_authz_groups
+      ldap_groups_data = local.spa_ldap_groups_data
+      spapp_groups_data = local.spa_spapp_groups_data
+    }
+    web_groups = {
+      okta_authz_groups = local.web_okta_authz_groups
+      ldap_groups_data = local.web_ldap_groups_data
+      spapp_groups_data = local.web_spapp_groups_data
+    }
+    na_groups = {
+      okta_authz_groups = local.na_okta_authz_groups
+      ldap_groups_data = local.na_ldap_groups_data
+      spapp_groups_data = local.na_spapp_groups_data
+    }
+    oauth2_groups = {
+      okta_authz_groups = local.oauth2_okta_authz_groups
+      ldap_groups_data = local.oauth2_ldap_groups_data
+      spapp_groups_data = local.oauth2_spapp_groups_data
+    }
+  }
+}
+
+# Module-specific debug outputs
+output "debug_na_oidc_authz_groups" {
+  description = "Debug information for native OIDC authorization groups"
+  value = try(module.oauth_3leg_native[0].debug_authz_groups, null)
+}
+
 # 2-leg OAuth App Outputs
 output "oauth_2leg_app_id" {
   description = "2-leg OAuth application ID"
@@ -138,4 +171,24 @@ output "created_modules" {
     oauth_3leg_backend  = local.app_config.create_3leg_backend
     oauth_3leg_native   = local.app_config.create_3leg_native
   }
+}
+
+output "debug_var_spa" {
+  description = "Full contents of var.spa as loaded by Terraform"
+  value = var.spa
+}
+
+output "debug_var_web" {
+  description = "Full contents of var.web as loaded by Terraform"
+  value = var.web
+}
+
+output "debug_var_na" {
+  description = "Full contents of var.na as loaded by Terraform"
+  value = var.na
+}
+
+output "debug_var_oauth2" {
+  description = "Full contents of var.oauth2 as loaded by Terraform"
+  value = var.oauth2
 } 

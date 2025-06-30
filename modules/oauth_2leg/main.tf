@@ -6,6 +6,10 @@ terraform {
       source  = "okta/okta"
       version = "4.20.0"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.9.1"
+    }
   }
 }
 
@@ -58,4 +62,12 @@ resource "okta_app_oauth" "oauth_2leg" {
   user_name_template_suffix           = try(var.user_name_template_suffix, null)
   user_name_template_type             = try(var.user_name_template_type, null)
   wildcard_redirect                    = try(var.wildcard_redirect, null)
-} 
+}
+
+# Wait for Okta app to be fully provisioned before group assignment
+resource "time_sleep" "wait_for_okta_app" {
+  depends_on = [okta_app_oauth.oauth_2leg]
+  create_duration = "30s"
+}
+
+# Remove all group assignment logic for 2-leg OAuth apps 

@@ -65,6 +65,9 @@ variable "oauth2" {
       user_name_template_suffix = optional(string)
       user_name_template_type = optional(string, "BUILT_IN")
       wildcard_redirect = optional(string)
+      OKTA_AUTHZ_GROUPS = optional(list(string))
+      APP_AUTHZ_LDAP_GROUPS = optional(list(string))
+      APP_AUTHZ_SPAPP_GROUPS = optional(list(string))
     })
     
     group = optional(object({
@@ -141,6 +144,9 @@ variable "spa" {
       user_name_template_suffix = optional(string)
       user_name_template_type = optional(string, "BUILT_IN")
       wildcard_redirect = optional(string)
+      OKTA_AUTHZ_GROUPS = optional(list(string))
+      APP_AUTHZ_LDAP_GROUPS = optional(list(string))
+      APP_AUTHZ_SPAPP_GROUPS = optional(list(string))
     })
     
     group = optional(object({
@@ -217,6 +223,9 @@ variable "na" {
       user_name_template_suffix = optional(string)
       user_name_template_type = optional(string, "BUILT_IN")
       wildcard_redirect = optional(string)
+      OKTA_AUTHZ_GROUPS = optional(list(string))
+      APP_AUTHZ_LDAP_GROUPS = optional(list(string))
+      APP_AUTHZ_SPAPP_GROUPS = optional(list(string))
     })
     
     group = optional(object({
@@ -293,6 +302,9 @@ variable "web" {
       user_name_template_suffix = optional(string)
       user_name_template_type = optional(string, "BUILT_IN")
       wildcard_redirect = optional(string)
+      OKTA_AUTHZ_GROUPS = optional(list(string))
+      APP_AUTHZ_LDAP_GROUPS = optional(list(string))
+      APP_AUTHZ_SPAPP_GROUPS = optional(list(string))
     })
     
     group = optional(object({

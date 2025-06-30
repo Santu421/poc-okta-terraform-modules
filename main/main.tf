@@ -12,21 +12,53 @@ locals {
   env_config_file = file("../poc-okta-terraform-configs/${var.app_config_path}/${var.environment}/${local.app_short_name}-${var.environment}.yaml")
   env_config      = yamldecode(local.env_config_file)
   
-  # Data sources for group ID conversion (for LDAP and SPAPP groups)
-  ldap_groups_data = try(var.spa.app.APP_AUTHZ_LDAP_GROUPS, try(var.web.app.APP_AUTHZ_LDAP_GROUPS, try(var.na.app.APP_AUTHZ_LDAP_GROUPS, toset([]))))
-  spapp_groups_data = try(var.spa.app.APP_AUTHZ_SPAPP_GROUPS, try(var.web.app.APP_AUTHZ_SPAPP_GROUPS, try(var.na.app.APP_AUTHZ_SPAPP_GROUPS, toset([]))))
+  # Extract group configurations for each app type (each module will get its own groups)
+  spa_okta_authz_groups = var.spa != null ? try(toset(var.spa.app.OKTA_AUTHZ_GROUPS), toset([])) : toset([])
+  web_okta_authz_groups = var.web != null ? try(toset(var.web.app.OKTA_AUTHZ_GROUPS), toset([])) : toset([])
+  na_okta_authz_groups = var.na != null ? try(toset(var.na.app.OKTA_AUTHZ_GROUPS), toset([])) : toset([])
+  oauth2_okta_authz_groups = var.oauth2 != null ? try(toset(var.oauth2.app.OKTA_AUTHZ_GROUPS), toset([])) : toset([])
   
-  # Common profile for all modules (enhanced with authorization groups)
+  spa_ldap_groups_data = var.spa != null ? try(toset(var.spa.app.APP_AUTHZ_LDAP_GROUPS), toset([])) : toset([])
+  web_ldap_groups_data = var.web != null ? try(toset(var.web.app.APP_AUTHZ_LDAP_GROUPS), toset([])) : toset([])
+  na_ldap_groups_data = var.na != null ? try(toset(var.na.app.APP_AUTHZ_LDAP_GROUPS), toset([])) : toset([])
+  oauth2_ldap_groups_data = var.oauth2 != null ? try(toset(var.oauth2.app.APP_AUTHZ_LDAP_GROUPS), toset([])) : toset([])
+  
+  spa_spapp_groups_data = var.spa != null ? try(toset(var.spa.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
+  web_spapp_groups_data = var.web != null ? try(toset(var.web.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
+  na_spapp_groups_data = var.na != null ? try(toset(var.na.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
+  oauth2_spapp_groups_data = var.oauth2 != null ? try(toset(var.oauth2.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
+  
+  # Debug information for troubleshooting
+  debug_info = {
+    spa_groups = {
+      okta_authz_groups = local.spa_okta_authz_groups
+      ldap_groups_data = local.spa_ldap_groups_data
+      spapp_groups_data = local.spa_spapp_groups_data
+    }
+    web_groups = {
+      okta_authz_groups = local.web_okta_authz_groups
+      ldap_groups_data = local.web_ldap_groups_data
+      spapp_groups_data = local.web_spapp_groups_data
+    }
+    na_groups = {
+      okta_authz_groups = local.na_okta_authz_groups
+      ldap_groups_data = local.na_ldap_groups_data
+      spapp_groups_data = local.na_spapp_groups_data
+    }
+    oauth2_groups = {
+      okta_authz_groups = local.oauth2_okta_authz_groups
+      ldap_groups_data = local.oauth2_ldap_groups_data
+      spapp_groups_data = local.oauth2_spapp_groups_data
+    }
+  }
+  
+  # Common profile for all modules (metadata only - no group assignments)
   common_profile = jsonencode({
     parent_cmdb_name    = local.metadata.parent_cmdb_name
     division            = local.metadata.division
     cmdb_app_short_name = local.metadata.cmdb_app_short_name
     team_dl             = local.metadata.team_dl
     requested_by        = local.metadata.requested_by
-    # Custom authorization groups (not Terraform defined)
-    OKTA_AUTHZ_GROUPS = try(var.spa.app.OKTA_AUTHZ_GROUPS, try(var.web.app.OKTA_AUTHZ_GROUPS, try(var.na.app.OKTA_AUTHZ_GROUPS, null))) != null && length(try(var.spa.app.OKTA_AUTHZ_GROUPS, try(var.web.app.OKTA_AUTHZ_GROUPS, try(var.na.app.OKTA_AUTHZ_GROUPS, toset([]))))) > 0 ? try(var.spa.app.OKTA_AUTHZ_GROUPS, try(var.web.app.OKTA_AUTHZ_GROUPS, try(var.na.app.OKTA_AUTHZ_GROUPS, toset([])))) : ["Everyone"]
-    APP_AUTHZ_LDAP_GROUPS = [for group in values(data.okta_group.ldap_groups) : group.id]
-    APP_AUTHZ_SPAPP_GROUPS = [for group in values(data.okta_group.spapp_groups) : group.id]
   })
   
   # Extract environment config values
@@ -36,20 +68,6 @@ locals {
   oauth_config = try(local.env_config.oauth_config, {})
   trusted_origins = try(local.env_config.trusted_origins, [])
   bookmarks = try(local.env_config.bookmarks, [])
-}
-
-# Data sources to look up LDAP groups by name and get their IDs
-data "okta_group" "ldap_groups" {
-  for_each = local.ldap_groups_data
-  name     = each.value
-  include_users = false
-}
-
-# Data sources to look up SPAPP groups by name and get their IDs
-data "okta_group" "spapp_groups" {
-  for_each = local.spapp_groups_data
-  name     = each.value
-  include_users = false
 }
 
 # Create 2-leg OAuth app if oauth2 object is provided
@@ -109,6 +127,11 @@ module "oauth_3leg_frontend" {
   
   app_label = var.spa.app.label
   profile = local.common_profile
+  
+  # Group assignment variables (specific to this app type)
+  okta_authz_groups = local.spa_okta_authz_groups
+  ldap_groups_data = local.spa_ldap_groups_data
+  spapp_groups_data = local.spa_spapp_groups_data
   
   # OAuth App variables
   token_endpoint_auth_method = var.spa.app.token_endpoint_auth_method
@@ -175,6 +198,11 @@ module "oauth_3leg_backend" {
   app_label = var.web.app.label
   profile = local.common_profile
   
+  # Group assignment variables (specific to this app type)
+  okta_authz_groups = local.web_okta_authz_groups
+  ldap_groups_data = local.web_ldap_groups_data
+  spapp_groups_data = local.web_spapp_groups_data
+  
   # OAuth App variables
   token_endpoint_auth_method = var.web.app.token_endpoint_auth_method
   omit_secret = var.web.app.omit_secret
@@ -239,6 +267,11 @@ module "oauth_3leg_native" {
   
   app_label = var.na.app.label
   profile = local.common_profile
+  
+  # Group assignment variables (specific to this app type)
+  okta_authz_groups = local.na_okta_authz_groups
+  ldap_groups_data = local.na_ldap_groups_data
+  spapp_groups_data = local.na_spapp_groups_data
   
   # OAuth App variables
   token_endpoint_auth_method = var.na.app.token_endpoint_auth_method

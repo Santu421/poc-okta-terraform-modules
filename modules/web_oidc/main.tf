@@ -71,16 +71,26 @@ resource "time_sleep" "wait_for_okta_app" {
   create_duration = "30s"
 }
 
-# Data source to get authorization groups (use Everyone if empty)
 locals {
-  # Parse the profile to get OKTA_AUTHZ_GROUPS
-  profile_data = jsondecode(var.profile)
-  authz_groups = try(local.profile_data.OKTA_AUTHZ_GROUPS, ["Everyone"])
+  okta_group_names = length(var.okta_authz_groups) > 0 ? var.okta_authz_groups : ["Everyone"]
 }
 
-# Data sources to look up authorization groups by name
 data "okta_group" "authz_groups" {
-  for_each = toset(local.authz_groups)
+  for_each = toset(local.okta_group_names)
+  name     = each.value
+  include_users = false
+}
+
+# Data sources to look up LDAP groups by name and get their IDs
+data "okta_group" "ldap_groups" {
+  for_each = var.ldap_groups_data
+  name     = each.value
+  include_users = false
+}
+
+# Data sources to look up SPAPP groups by name and get their IDs
+data "okta_group" "spapp_groups" {
+  for_each = var.spapp_groups_data
   name     = each.value
   include_users = false
 }
