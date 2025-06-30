@@ -71,22 +71,11 @@ resource "time_sleep" "wait_for_okta_app" {
   create_duration = "30s"
 }
 
-locals {
-  okta_group_names = length(var.okta_authz_groups) > 0 ? var.okta_authz_groups : ["Everyone"]
-}
-
-data "okta_group" "authz_groups" {
-  for_each = toset(local.okta_group_names)
-  name     = each.value
-  include_users = false
-}
-
-# App-Group Assignments using authorization groups only
-resource "okta_app_group_assignment" "web_oidc_assignments" {
-  for_each = data.okta_group.authz_groups
-  
+# Group assignments
+resource "okta_app_group_assignment" "web_authz_groups" {
+  for_each = toset(var.okta_authz_group_ids)
   app_id   = okta_app_oauth.web_oidc.id
-  group_id = each.value.id
+  group_id = each.value
   
   depends_on = [time_sleep.wait_for_okta_app]
 }

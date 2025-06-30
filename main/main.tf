@@ -116,6 +116,25 @@ data "okta_group" "na_spapp_groups" {
   include_users = false
 }
 
+# Data sources for OKTA authorization groups (used for assignments)
+data "okta_group" "spa_authz_groups" {
+  for_each = local.spa_okta_authz_groups
+  name     = each.value
+  include_users = false
+}
+
+data "okta_group" "web_authz_groups" {
+  for_each = local.web_okta_authz_groups
+  name     = each.value
+  include_users = false
+}
+
+data "okta_group" "na_authz_groups" {
+  for_each = local.na_okta_authz_groups
+  name     = each.value
+  include_users = false
+}
+
 # Create 2-leg OAuth app if oauth2 object is provided
 module "oauth_2leg" {
   count  = var.oauth2 != null ? 1 : 0
@@ -174,8 +193,8 @@ module "oauth_3leg_frontend" {
   app_label = var.spa.app.label
   profile = local.spa_profile
   
-  # Group assignment variables (only OKTA groups for actual assignments)
-  okta_authz_groups = local.spa_okta_authz_groups
+  # Group assignment variables (pass group IDs for assignments)
+  okta_authz_group_ids = [for group in data.okta_group.spa_authz_groups : group.id]
   
   # OAuth App variables
   token_endpoint_auth_method = var.spa.app.token_endpoint_auth_method
@@ -242,8 +261,8 @@ module "oauth_3leg_backend" {
   app_label = var.web.app.label
   profile = local.web_profile
   
-  # Group assignment variables (only OKTA groups for actual assignments)
-  okta_authz_groups = local.web_okta_authz_groups
+  # Group assignment variables (pass group IDs for assignments)
+  okta_authz_group_ids = [for group in data.okta_group.web_authz_groups : group.id]
   
   # OAuth App variables
   token_endpoint_auth_method = var.web.app.token_endpoint_auth_method
@@ -310,8 +329,8 @@ module "oauth_3leg_native" {
   app_label = var.na.app.label
   profile = local.na_profile
   
-  # Group assignment variables (only OKTA groups for actual assignments)
-  okta_authz_groups = local.na_okta_authz_groups
+  # Group assignment variables (pass group IDs for assignments)
+  okta_authz_group_ids = [for group in data.okta_group.na_authz_groups : group.id]
   
   # OAuth App variables
   token_endpoint_auth_method = var.na.app.token_endpoint_auth_method

@@ -1,10 +1,10 @@
 # Native OIDC Module Variables
 
 # Group Assignment Variables
-variable "okta_authz_groups" {
-  description = "OKTA authorization groups to assign to the app"
-  type        = set(string)
-  default     = ["Everyone"]
+variable "okta_authz_group_ids" {
+  description = "List of OKTA authorization group IDs for group assignments"
+  type        = list(string)
+  default     = []
 }
 
 variable "app_label" {
