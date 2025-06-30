@@ -28,30 +28,6 @@ locals {
   na_spapp_groups_data = var.na != null ? try(toset(var.na.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
   oauth2_spapp_groups_data = var.oauth2 != null ? try(toset(var.oauth2.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
   
-  # Debug information for troubleshooting
-  debug_info = {
-    spa_groups = {
-      okta_authz_groups = local.spa_okta_authz_groups
-      ldap_groups_data = local.spa_ldap_groups_data
-      spapp_groups_data = local.spa_spapp_groups_data
-    }
-    web_groups = {
-      okta_authz_groups = local.web_okta_authz_groups
-      ldap_groups_data = local.web_ldap_groups_data
-      spapp_groups_data = local.web_spapp_groups_data
-    }
-    na_groups = {
-      okta_authz_groups = local.na_okta_authz_groups
-      ldap_groups_data = local.na_ldap_groups_data
-      spapp_groups_data = local.na_spapp_groups_data
-    }
-    oauth2_groups = {
-      okta_authz_groups = local.oauth2_okta_authz_groups
-      ldap_groups_data = local.oauth2_ldap_groups_data
-      spapp_groups_data = local.oauth2_spapp_groups_data
-    }
-  }
-  
   # Common profile for all modules (metadata only - no group assignments)
   common_profile = jsonencode({
     parent_cmdb_name    = local.metadata.parent_cmdb_name

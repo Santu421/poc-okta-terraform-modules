@@ -1,16 +1,5 @@
 # Root Terraform Outputs
 
-# Debug Outputs for Group Assignment Troubleshooting
-output "debug_group_assignment" {
-  description = "Debug information for group assignment troubleshooting"
-  value = module.main.debug_group_assignment
-}
-
-output "debug_na_oidc_authz_groups" {
-  description = "Debug information for native OIDC authorization groups"
-  value = module.main.debug_na_oidc_authz_groups
-}
-
 # Application Metadata
 output "app_metadata" {
   description = "Application metadata from YAML"
