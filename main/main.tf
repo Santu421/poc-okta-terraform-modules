@@ -16,17 +16,14 @@ locals {
   spa_okta_authz_groups = var.spa != null ? try(toset(var.spa.app.OKTA_AUTHZ_GROUPS), toset([])) : toset([])
   web_okta_authz_groups = var.web != null ? try(toset(var.web.app.OKTA_AUTHZ_GROUPS), toset([])) : toset([])
   na_okta_authz_groups = var.na != null ? try(toset(var.na.app.OKTA_AUTHZ_GROUPS), toset([])) : toset([])
-  oauth2_okta_authz_groups = var.oauth2 != null ? try(toset(var.oauth2.app.OKTA_AUTHZ_GROUPS), toset([])) : toset([])
   
   spa_ldap_groups_data = var.spa != null ? try(toset(var.spa.app.APP_AUTHZ_LDAP_GROUPS), toset([])) : toset([])
   web_ldap_groups_data = var.web != null ? try(toset(var.web.app.APP_AUTHZ_LDAP_GROUPS), toset([])) : toset([])
   na_ldap_groups_data = var.na != null ? try(toset(var.na.app.APP_AUTHZ_LDAP_GROUPS), toset([])) : toset([])
-  oauth2_ldap_groups_data = var.oauth2 != null ? try(toset(var.oauth2.app.APP_AUTHZ_LDAP_GROUPS), toset([])) : toset([])
   
   spa_spapp_groups_data = var.spa != null ? try(toset(var.spa.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
   web_spapp_groups_data = var.web != null ? try(toset(var.web.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
   na_spapp_groups_data = var.na != null ? try(toset(var.na.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
-  oauth2_spapp_groups_data = var.oauth2 != null ? try(toset(var.oauth2.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
   
   # 2-leg OAuth profile (metadata only - no group assignments)
   oauth2_profile = jsonencode({
@@ -177,10 +174,8 @@ module "oauth_3leg_frontend" {
   app_label = var.spa.app.label
   profile = local.spa_profile
   
-  # Group assignment variables (specific to this app type)
+  # Group assignment variables (only OKTA groups for actual assignments)
   okta_authz_groups = local.spa_okta_authz_groups
-  ldap_groups_data = local.spa_ldap_groups_data
-  spapp_groups_data = local.spa_spapp_groups_data
   
   # OAuth App variables
   token_endpoint_auth_method = var.spa.app.token_endpoint_auth_method
@@ -247,10 +242,8 @@ module "oauth_3leg_backend" {
   app_label = var.web.app.label
   profile = local.web_profile
   
-  # Group assignment variables (specific to this app type)
+  # Group assignment variables (only OKTA groups for actual assignments)
   okta_authz_groups = local.web_okta_authz_groups
-  ldap_groups_data = local.web_ldap_groups_data
-  spapp_groups_data = local.web_spapp_groups_data
   
   # OAuth App variables
   token_endpoint_auth_method = var.web.app.token_endpoint_auth_method
@@ -317,10 +310,8 @@ module "oauth_3leg_native" {
   app_label = var.na.app.label
   profile = local.na_profile
   
-  # Group assignment variables (specific to this app type)
+  # Group assignment variables (only OKTA groups for actual assignments)
   okta_authz_groups = local.na_okta_authz_groups
-  ldap_groups_data = local.na_ldap_groups_data
-  spapp_groups_data = local.na_spapp_groups_data
   
   # OAuth App variables
   token_endpoint_auth_method = var.na.app.token_endpoint_auth_method

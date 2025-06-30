@@ -7,18 +7,6 @@ variable "okta_authz_groups" {
   default     = ["Everyone"]
 }
 
-variable "ldap_groups_data" {
-  description = "LDAP groups data for group ID conversion"
-  type        = set(string)
-  default     = []
-}
-
-variable "spapp_groups_data" {
-  description = "SPAPP groups data for group ID conversion"
-  type        = set(string)
-  default     = []
-}
-
 variable "app_label" {
   description = "Application display label"
   type        = string

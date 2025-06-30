@@ -81,21 +81,7 @@ data "okta_group" "authz_groups" {
   include_users = false
 }
 
-# Data sources to look up LDAP groups by name and get their IDs
-data "okta_group" "ldap_groups" {
-  for_each = var.ldap_groups_data
-  name     = each.value
-  include_users = false
-}
-
-# Data sources to look up SPAPP groups by name and get their IDs
-data "okta_group" "spapp_groups" {
-  for_each = var.spapp_groups_data
-  name     = each.value
-  include_users = false
-}
-
-# App-Group Assignments using authorization groups
+# App-Group Assignments using authorization groups only
 resource "okta_app_group_assignment" "na_oidc_assignments" {
   for_each = data.okta_group.authz_groups
   
