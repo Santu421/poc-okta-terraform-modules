@@ -28,13 +28,49 @@ locals {
   na_spapp_groups_data = var.na != null ? try(toset(var.na.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
   oauth2_spapp_groups_data = var.oauth2 != null ? try(toset(var.oauth2.app.APP_AUTHZ_SPAPP_GROUPS), toset([])) : toset([])
   
-  # Common profile for all modules (metadata only - no group assignments)
-  common_profile = jsonencode({
+  # 2-leg OAuth profile (metadata only - no group assignments)
+  oauth2_profile = jsonencode({
     parent_cmdb_name    = local.metadata.parent_cmdb_name
     division            = local.metadata.division
     cmdb_app_short_name = local.metadata.cmdb_app_short_name
     team_dl             = local.metadata.team_dl
     requested_by        = local.metadata.requested_by
+  })
+  
+  # 3-leg SPA profile with group information
+  spa_profile = jsonencode({
+    parent_cmdb_name    = local.metadata.parent_cmdb_name
+    division            = local.metadata.division
+    cmdb_app_short_name = local.metadata.cmdb_app_short_name
+    team_dl             = local.metadata.team_dl
+    requested_by        = local.metadata.requested_by
+    OKTA_AUTHZ_GROUPS   = join(",", local.spa_okta_authz_groups)
+    APP_AUTHZ_LDAP_GROUPS = join(",", [for group_name in local.spa_ldap_groups_data : data.okta_group.spa_ldap_groups[group_name].id])
+    APP_AUTHZ_SPAPP_GROUPS = join(",", [for group_name in local.spa_spapp_groups_data : data.okta_group.spa_spapp_groups[group_name].id])
+  })
+  
+  # 3-leg Web profile with group information
+  web_profile = jsonencode({
+    parent_cmdb_name    = local.metadata.parent_cmdb_name
+    division            = local.metadata.division
+    cmdb_app_short_name = local.metadata.cmdb_app_short_name
+    team_dl             = local.metadata.team_dl
+    requested_by        = local.metadata.requested_by
+    OKTA_AUTHZ_GROUPS   = join(",", local.web_okta_authz_groups)
+    APP_AUTHZ_LDAP_GROUPS = join(",", [for group_name in local.web_ldap_groups_data : data.okta_group.web_ldap_groups[group_name].id])
+    APP_AUTHZ_SPAPP_GROUPS = join(",", [for group_name in local.web_spapp_groups_data : data.okta_group.web_spapp_groups[group_name].id])
+  })
+  
+  # 3-leg Native profile with group information
+  na_profile = jsonencode({
+    parent_cmdb_name    = local.metadata.parent_cmdb_name
+    division            = local.metadata.division
+    cmdb_app_short_name = local.metadata.cmdb_app_short_name
+    team_dl             = local.metadata.team_dl
+    requested_by        = local.metadata.requested_by
+    OKTA_AUTHZ_GROUPS   = join(",", local.na_okta_authz_groups)
+    APP_AUTHZ_LDAP_GROUPS = join(",", [for group_name in local.na_ldap_groups_data : data.okta_group.na_ldap_groups[group_name].id])
+    APP_AUTHZ_SPAPP_GROUPS = join(",", [for group_name in local.na_spapp_groups_data : data.okta_group.na_spapp_groups[group_name].id])
   })
   
   # Extract environment config values
@@ -44,6 +80,43 @@ locals {
   oauth_config = try(local.env_config.oauth_config, {})
   trusted_origins = try(local.env_config.trusted_origins, [])
   bookmarks = try(local.env_config.bookmarks, [])
+}
+
+# Data sources for group IDs (used in profiles)
+data "okta_group" "spa_ldap_groups" {
+  for_each = local.spa_ldap_groups_data
+  name     = each.value
+  include_users = false
+}
+
+data "okta_group" "spa_spapp_groups" {
+  for_each = local.spa_spapp_groups_data
+  name     = each.value
+  include_users = false
+}
+
+data "okta_group" "web_ldap_groups" {
+  for_each = local.web_ldap_groups_data
+  name     = each.value
+  include_users = false
+}
+
+data "okta_group" "web_spapp_groups" {
+  for_each = local.web_spapp_groups_data
+  name     = each.value
+  include_users = false
+}
+
+data "okta_group" "na_ldap_groups" {
+  for_each = local.na_ldap_groups_data
+  name     = each.value
+  include_users = false
+}
+
+data "okta_group" "na_spapp_groups" {
+  for_each = local.na_spapp_groups_data
+  name     = each.value
+  include_users = false
 }
 
 # Create 2-leg OAuth app if oauth2 object is provided
@@ -63,7 +136,7 @@ module "oauth_2leg" {
   login_mode = var.oauth2.app.login_mode
   status = var.oauth2.app.status
   client_basic_secret = var.oauth2.app.client_basic_secret
-  profile = local.common_profile
+  profile = local.oauth2_profile
   
   # Additional optional variables
   accessibility_error_redirect_url = var.oauth2.app.accessibility_error_redirect_url
@@ -102,7 +175,7 @@ module "oauth_3leg_frontend" {
   source = "../modules/spa_oidc"
   
   app_label = var.spa.app.label
-  profile = local.common_profile
+  profile = local.spa_profile
   
   # Group assignment variables (specific to this app type)
   okta_authz_groups = local.spa_okta_authz_groups
@@ -172,7 +245,7 @@ module "oauth_3leg_backend" {
   source = "../modules/web_oidc"
   
   app_label = var.web.app.label
-  profile = local.common_profile
+  profile = local.web_profile
   
   # Group assignment variables (specific to this app type)
   okta_authz_groups = local.web_okta_authz_groups
@@ -242,7 +315,7 @@ module "oauth_3leg_native" {
   source = "../modules/na_oidc"
   
   app_label = var.na.app.label
-  profile = local.common_profile
+  profile = local.na_profile
   
   # Group assignment variables (specific to this app type)
   okta_authz_groups = local.na_okta_authz_groups
