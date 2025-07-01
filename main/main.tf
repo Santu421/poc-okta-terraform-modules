@@ -2,15 +2,15 @@
 # This file orchestrates the creation of Okta resources based on YAML configurations
 
 locals {
-  # Derive app short name from the last segment of app_config_path
+  # Derive app short name from the last segment of app_config_path (e.g., "apps/DIV1/TEST" -> "TEST")
   app_short_name = regex("([^/]+)$", var.app_config_path)[0]
 
   # Metadata and environment config file names
-  metadata_file = file("../poc-okta-terraform-configs/${var.app_config_path}/${local.app_short_name}-metadata.yaml")
-  metadata      = yamldecode(local.metadata_file)
+  metadata_file = "${var.app_config_path}/${local.app_short_name}-metadata.yaml"
+  metadata      = yamldecode(file(local.metadata_file))
   
-  env_config_file = file("../poc-okta-terraform-configs/${var.app_config_path}/${var.environment}/${local.app_short_name}-${var.environment}.yaml")
-  env_config      = yamldecode(local.env_config_file)
+  env_config_file = "${var.app_config_path}/${var.environment}/${local.app_short_name}-${var.environment}.yaml"
+  env_config      = yamldecode(file(local.env_config_file))
   
   # Extract group configurations for each app type (each module will get its own groups)
   spa_okta_authz_groups = var.spa != null ? try(toset(var.spa.app.OKTA_AUTHZ_GROUPS), toset([])) : toset([])
@@ -77,6 +77,21 @@ locals {
   oauth_config = try(local.env_config.oauth_config, {})
   trusted_origins = try(local.env_config.trusted_origins, [])
   bookmarks = try(local.env_config.bookmarks, [])
+
+  # --- Access Policy Creation ---
+  # Only create if create_access_policy.enabled is true in app_config
+  create_access_policy = try(local.app_config.create_access_policy.enabled, false)
+  
+  # Get OAuth scopes from YAML config, default to common scopes if not specified
+  oauth_scopes = try(local.app_config.create_access_policy.scopes, ["openid", "profile", "email", "offline_access"])
+  
+  # Collect all enabled client IDs
+  enabled_client_ids = concat(
+    var.spa != null ? [var.spa.app.client_id] : [],
+    var.web != null ? [var.web.app.client_id] : [],
+    var.na != null ? [var.na.app.client_id] : [],
+    var.oauth2 != null ? [var.oauth2.app.client_id] : []
+  )
 }
 
 # Data sources for group IDs (used in profiles)
@@ -387,4 +402,32 @@ module "oauth_3leg_native" {
   bookmark_auto_submit_toolbar = var.na.bookmark != null ? var.na.bookmark.auto_submit_toolbar : null
   bookmark_hide_ios = var.na.bookmark != null ? var.na.bookmark.hide_ios : null
   bookmark_hide_web = var.na.bookmark != null ? var.na.bookmark.hide_web : null
+}
+
+# Authorization Server Policy for OAuth apps
+resource "okta_auth_server_policy" "oauth_access_policy" {
+  count = local.create_access_policy && length(local.enabled_client_ids) > 0 ? 1 : 0
+  auth_server_id = "default"
+  name = "Combined OAuth Access Policy"
+  description = "Access policy for all enabled clients: ${join(", ", local.enabled_client_ids)}"
+  status = "ACTIVE"
+  priority = 1
+  client_whitelist = local.enabled_client_ids
+}
+
+# Authorization Server Policy Rule for OAuth apps
+resource "okta_auth_server_policy_rule" "oauth_access_rule" {
+  count = local.create_access_policy && length(local.enabled_client_ids) > 0 ? 1 : 0
+  auth_server_id = "default"
+  policy_id = okta_auth_server_policy.oauth_access_policy[0].id
+  name = "OAuth Access Rule"
+  status = "ACTIVE"
+  priority = 1
+  grant_type_whitelist = [
+    "client_credentials",
+    "authorization_code", 
+    "password"
+  ]
+  group_whitelist = ["EVERYONE"]
+  scope_whitelist = local.oauth_scopes
 } 
