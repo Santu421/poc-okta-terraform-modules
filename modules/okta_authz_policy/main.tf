@@ -5,6 +5,8 @@ resource "okta_auth_server_policy" "oauth_access_policy" {
   status          = "ACTIVE"
   priority        = 1
   client_whitelist = var.enabled_client_ids
+  
+  depends_on = [var.oauth_app_dependencies]
 }
 
 resource "okta_auth_server_policy_rule" "oauth_access_rule" {
