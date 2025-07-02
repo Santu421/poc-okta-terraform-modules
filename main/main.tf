@@ -405,29 +405,18 @@ module "oauth_3leg_native" {
 }
 
 # Authorization Server Policy for OAuth apps
-resource "okta_auth_server_policy" "oauth_access_policy" {
-  count = local.create_access_policy && length(local.enabled_client_ids) > 0 ? 1 : 0
-  auth_server_id = "default"
-  name = "Combined OAuth Access Policy"
-  description = "Access policy for all enabled clients: ${join(", ", local.enabled_client_ids)}"
-  status = "ACTIVE"
-  priority = 1
-  client_whitelist = local.enabled_client_ids
-}
-
-# Authorization Server Policy Rule for OAuth apps
-resource "okta_auth_server_policy_rule" "oauth_access_rule" {
-  count = local.create_access_policy && length(local.enabled_client_ids) > 0 ? 1 : 0
-  auth_server_id = "default"
-  policy_id = okta_auth_server_policy.oauth_access_policy[0].id
-  name = "OAuth Access Rule"
-  status = "ACTIVE"
-  priority = 1
-  grant_type_whitelist = [
+module "okta_authz_policy" {
+  count                 = local.create_access_policy && length(local.enabled_client_ids) > 0 ? 1 : 0
+  source                = "../modules/okta_authz_policy"
+  enabled_client_ids    = local.enabled_client_ids
+  policy_name           = "Combined OAuth Access Policy"
+  policy_description    = "Access policy for all enabled clients: ${join(", ", local.enabled_client_ids)}"
+  rule_name             = "OAuth Access Rule"
+  grant_type_whitelist  = [
     "client_credentials",
-    "authorization_code", 
+    "authorization_code",
     "password"
   ]
-  group_whitelist = ["EVERYONE"]
-  scope_whitelist = local.oauth_scopes
+  group_whitelist       = ["EVERYONE"]
+  scope_whitelist       = local.oauth_scopes
 } 
